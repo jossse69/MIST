@@ -6,7 +6,7 @@ install the game. you can download it [here](https://github.com/jossse69/MIST/re
 (NOTE EXTRIMATELY ALPHA VERSION)
 
 # controls
-use numberpad to move.
+use numberpad to move. </br>s
 *more controls to come*
 
 # license
