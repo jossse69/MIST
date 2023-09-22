@@ -1,184 +1,121 @@
-﻿using GoRogue.MapViews;
-using SadRogue.Primitives;
+﻿using SadRogue.Primitives;
 using SadConsole;
-
+using SadRogue.Primitives.GridViews;
+using GoRogue.FOV;
+using SadConsole.Input;
 
 namespace MIST
 {
-
-
-
-    internal class Map
+    internal class Map : SadConsole.Console
     {
-        
-        public ArrayMap2D<Tile> MapArray;
+        public Tile this[Point pos] { get { return _tiles[pos]; } set { _tiles[pos] = value; } }
+        public Tile this[int x, int y] { get { return this[(x, y)]; } set { this[(x, y)] = value; } }
+        public Tile this[int index] { get { return this[Point.FromIndex(index, Width)]; } set { this[Point.FromIndex(index, Width)] = value; } }
 
-        public IMapView<bool> FOVMap;
+        private readonly ColoredGlyph WALL = new ColoredGlyph(Color.AnsiBlue, Color.DarkBlue, '#');
+        private readonly ColoredGlyph WALL_LIT = new ColoredGlyph(Color.DarkGray, Color.Brown, '#');
+        private readonly ColoredGlyph FLOOR = new ColoredGlyph(Color.DarkBlue, Color.Black, '.');
+        private readonly ColoredGlyph FLOOR_LIT = new ColoredGlyph(Color.Purple, Color.Black, '.');
+        private readonly ColoredGlyph UNDEFINED = new ColoredGlyph(Color.White, Color.Black, '?');
+        private readonly ArrayView<Tile> _tiles;
+        private readonly IFOV _fov;
 
-
-        public readonly ColoredGlyph WALL = new ColoredGlyph(Color.AnsiBlue, Color.DarkBlue, '#');
-        public readonly ColoredGlyph WALL_LIT = new ColoredGlyph(Color.DarkGray, Color.Brown, '#');
-        public readonly ColoredGlyph FLOOR = new ColoredGlyph(Color.DarkBlue, Color.Black, '.');
-
-        public readonly ColoredGlyph FLOOR_LIT = new ColoredGlyph(Color.Purple, Color.Black, '.');
-
-        public readonly ColoredGlyph UNDEFINED = new ColoredGlyph(Color.White, Color.Black, '?');
-
-
-
-
-        /// <summary>
-        /// a emun for what tile type it is
-        /// </summary>
-        public enum TileType
-        {
-            Floor,
-            Wall
-        }
-
-
-        public class Tile {
-            public TileType TileType;
-
-            public bool impassable;
-
-            public bool blocksview;
-
-            public bool explored;
-
-            public bool visible;
-            
-
-            public Tile(TileType type)
-            {
-                TileType = type;
-
-                visible = false;
-                
-                explored = false;
-
-                if (type == TileType.Floor)
-                {
-                    impassable = false;
-                    blocksview = false;
-                }
-                else if (type == TileType.Wall)
-                {
-                    impassable = true;
-                    blocksview = true;
-                }
-            }
-        }
+        private int _moveTimer = 0;
 
         /// <summary>
         ///  a 2d array of TileTypes for maps
         /// <param name="Width">the width of the map</param>
         /// <param name="Height">the height of the map</param>
         /// </summary>
-        public Map(int width, int height)
+        public Map(int width, int height) : base(width, height)
         {
-            MapArray = new ArrayMap2D<Tile>(width, height);
-
-
-            
+            _tiles = new ArrayView<Tile>(width, height);
+            _fov = new RecursiveShadowcastingFOV(new LambdaTranslationGridView<Tile, bool>(_tiles, x => x.BlocksView));
         }
-
-
 
         /// <summary>
         /// generates a map with a border and random tiles
-        /// <param name="Width">the width of the map</param>
-        /// <param name="Height">the height of the map</param>
+        /// <param name="width">the width of the map</param>
+        /// <param name="height">the height of the map</param>
         /// </summary>
-        public Map GenerateMap(int Width, int Height)
+        public static Map GenerateMap(int width, int height)
         {
-            var map = new Map(Width, Height);
+            var map = new Map(width, height);
             Random random = new Random();
-            for (int x = 0; x < MapArray.Width; x++)
+            for (int x = 0; x < width; x++)
             {
-                for (int y = 0; y < MapArray.Height; y++)
+                for (int y = 0; y < height; y++)
                 {
                     // Generate a random tile
-                    Tile tile = new Tile(TileType.Floor);
+                    Tile tile;
 
-                    // 20% chance of a wall
-                    if (random.Next(100) < 20)
+                    // If it's a border tile, set it as a wall
+                    if (x == 0 || x == width - 1 || y == 0 || y == height - 1)
                     {
                         tile = new Tile(TileType.Wall);
                     }
-
-                    // If it's a border tile, set it as a wall
-                    if (x == 0 || x == MapArray.Width - 1 || y == 0 || y == MapArray.Height - 1)
+                    else
                     {
-                        tile = new Tile(TileType.Wall);
+                        // 20% chance of a wall
+                        if (random.Next(100) < 20)
+                        {
+                            tile = new Tile(TileType.Wall);
+                        }
+                        else
+                        {
+                            tile = new Tile(TileType.Floor);
+                        }
                     }
 
                     // Set the tile in the map
-                    map.SetTile(x,y, tile);
+                    map[x, y] = tile;
                 }
             }
             return map;
-        }
-        /// <summary>
-        /// sets a tile in the map
-        /// </summary>
-        /// <param name="x">the x coordinate to set the tile </param>
-        /// <param name="y">the y coordinate to set the tile</param>
-        /// <param name="tileType">what type of tile should be set</param>
-        private void SetTile(int x, int y, Tile tile)
-        {
-            // Set the tile in the map
-            MapArray[x, y] = tile;
         }
 
         /// <summary>
         /// draws the map
         /// </summary>
         /// <param name="surface"> what surface to draw to</param>
-        public void DrawArray( CellSurface surface)
+        public void Draw()
         {
-            for (int x = 0; x < this.MapArray.Width; x++)
+            for (int x = 0; x < _tiles.Width; x++)
             {
-                for (int y = 0; y < this.MapArray.Height; y++)
+                for (int y = 0; y < _tiles.Height; y++)
                 {
-
                     // not explored, don't draw
-                    if (MapArray[x, y].explored == false)
-                    {
-                        continue;
-                    }
+                    if (_tiles[x, y].Explored == false) continue;
 
-                    if (TileType.Floor == MapArray[x, y].TileType)
+                    if (TileType.Floor == _tiles[x, y].TileType)
                     {
-
                         // if lit
-                        if (MapArray[x, y].visible)
+                        if (_tiles[x, y].Visible)
                         {
-                            surface.SetCellAppearance(x, y, FLOOR_LIT);
+                            Surface.SetCellAppearance(x, y, FLOOR_LIT);
                         }
                         else
                         {
-                            surface.SetCellAppearance(x, y, FLOOR);
+                            Surface.SetCellAppearance(x, y, FLOOR);
                         }
-
                     }
-                    else if (TileType.Wall == MapArray[x, y].TileType)
+                    else if (TileType.Wall == _tiles[x, y].TileType)
                     {
                         // if lit
-                        if (MapArray[x, y].visible){
-                            surface.SetCellAppearance(x, y, WALL_LIT);
-                        } else
+                        if (_tiles[x, y].Visible)
                         {
-                            surface.SetCellAppearance(x, y, WALL);
+                            Surface.SetCellAppearance(x, y, WALL_LIT);
+                        }
+                        else
+                        {
+                            Surface.SetCellAppearance(x, y, WALL);
                         }
                     }
                     else
                     {
-                        surface.SetCellAppearance(x, y, UNDEFINED);
+                        Surface.SetCellAppearance(x, y, UNDEFINED);
                     }
-                    
                 }
-            
             }
         }
 
@@ -187,21 +124,99 @@ namespace MIST
         /// </summary>
         /// <param name="x">the x coordinate to were the source is</param>
         /// <param name="y">the y coordinate to were the source is</param>
-         public void UpdateFOV(int x, int y)
+        public void UpdateFOV(int x, int y, int radius)
         {
-            // Reset visible array by looping through it
-            for (int i = 0; i < MapArray.Width; i++)
-            {
-                for (int j = 0; j < MapArray.Height; j++)
-                {
-                    MapArray[i, j].visible = false;
-                }
-            }
-            
+            _fov.Calculate((x, y), radius, Distance.Euclidean);
 
+            foreach (var pos in _fov.NewlySeen)
+            {
+                _tiles[pos].Visible = true;
+                _tiles[pos].Explored = true;
+            }
+
+            foreach (var pos in _fov.NewlyUnseen)
+            {
+                _tiles[pos].Visible = false;
+            }
         }
 
+        public override bool ProcessKeyboard(Keyboard keyboard)
+        {
+            var processed = false;
 
+            // move player with numbpad
+            var dx = 0;
+            var dy = 0;
+
+            if (keyboard.IsKeyDown(Keys.NumPad4))
+            {
+                dx = -1;
+                processed = true;
+            }
+            else if (keyboard.IsKeyDown(Keys.NumPad6))
+            {
+                dx = 1;
+                processed = true;
+            }
+            else if (keyboard.IsKeyDown(Keys.NumPad8))
+            {
+                dy = -1;
+                processed = true;
+            }
+            else if (keyboard.IsKeyDown(Keys.NumPad2))
+            {
+                dy = 1;
+                processed = true;
+            }
+            else if (keyboard.IsKeyDown(Keys.NumPad1))
+            {
+                dx = -1;
+                dy = 1;
+                processed = true;
+            }
+            else if (keyboard.IsKeyDown(Keys.NumPad3))
+            {
+                dx = 1;
+                dy = 1;
+                processed = true;
+            }
+            else if (keyboard.IsKeyDown(Keys.NumPad7))
+            {
+                dx = -1;
+                dy = -1;
+                processed = true;
+            }
+            else if (keyboard.IsKeyDown(Keys.NumPad9))
+            {
+                dx = 1;
+                dy = -1;
+                processed = true;
+            }
+
+            if (processed)
+            {
+                // move player if the movetimer expired
+                if (_moveTimer <= 0)
+                {
+                    var player = ScreenContainer.Instance.Player;
+                    player.TryToMove(dx, dy, this);
+                    UpdateFOV(player.Position.X, player.Position.Y, radius: 5);
+                    Draw();
+                    _moveTimer = 5;
+                }
+            }
+
+            return processed;
+        }
+
+        public override void Update(TimeSpan delta)
+        {
+            base.Update(delta);
+
+            if (_moveTimer > 0)
+            {
+                _moveTimer--;
+            }
+        }
     }
-
 }
