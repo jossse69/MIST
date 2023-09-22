@@ -202,6 +202,7 @@ namespace MIST
                     player.TryToMove(dx, dy, this);
                     UpdateFOV(player.Position.X, player.Position.Y, radius: 5);
                     Draw();
+                    player.Draw();
                     _moveTimer = 5;
                 }
             }
