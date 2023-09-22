@@ -16,7 +16,7 @@ namespace MIST
 
         public static Console startingConsole = (Console)GameHost.Instance.Screen;
 
-        public static GameObject player = new GameObject(new ColoredGlyph(Color.White, Color.Black, '@'), new Point(0, 0), startingConsole);
+        public static GameObject player = new GameObject(new ColoredGlyph(Color.White, Color.Black, '@'), new Point(40, 12), startingConsole);
 
         public static Map map = new Map(Width, Height);
 
@@ -53,11 +53,6 @@ namespace MIST
                 
                 var inputprocessed = processInput(keyboard);
 
-                // see if we did an input
-                if (inputprocessed)
-                {
-                    System.Console.WriteLine("input processed");
-                }
 
             };
         }
@@ -129,6 +124,7 @@ namespace MIST
                     else
                     {
                         player.TryToMove(dx, dy, map);
+                        map.UpdateFOV(player.Position.X, player.Position.Y);
                         movetimer = 5;
                     }
                     
