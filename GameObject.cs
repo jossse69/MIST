@@ -35,7 +35,7 @@ internal class GameObject
         if (Position.X + dx >= 0 && Position.X + dx < map.MapArray.Width && Position.Y + dy >= 0 && Position.Y + dy < map.MapArray.Height)
         {
             // if it goes into a wall, don't move, else move
-            if (map.MapArray[Position.X + dx, Position.Y + dy] != Map.TileType.Wall)
+            if (map.MapArray[Position.X + dx, Position.Y + dy].TileType != Map.TileType.Wall)
             {
                 MoveTo(new Point(Position.X + dx, Position.Y + dy));
             }

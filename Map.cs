@@ -1,20 +1,19 @@
 ﻿using GoRogue.MapViews;
 using SadRogue.Primitives;
 using SadConsole;
-using GoRogue;
+
 
 namespace MIST
 {
 
+
+
     internal class Map
     {
         
-        public ArrayMap2D<TileType> MapArray;
+        public ArrayMap2D<Tile> MapArray;
 
-        public ArrayMap2D<bool> ExploredArray;
-
-        public ArrayMap2D<bool> VisibleArray;
-
+        public IMapView<bool> FOVMap;
 
 
         public readonly ColoredGlyph WALL = new ColoredGlyph(Color.AnsiBlue, Color.DarkBlue, '#');
@@ -25,6 +24,9 @@ namespace MIST
 
         public readonly ColoredGlyph UNDEFINED = new ColoredGlyph(Color.White, Color.Black, '?');
 
+
+
+
         /// <summary>
         /// a emun for what tile type it is
         /// </summary>
@@ -33,6 +35,41 @@ namespace MIST
             Floor,
             Wall
         }
+
+
+        public class Tile {
+            public TileType TileType;
+
+            public bool impassable;
+
+            public bool blocksview;
+
+            public bool explored;
+
+            public bool visible;
+            
+
+            public Tile(TileType type)
+            {
+                TileType = type;
+
+                visible = false;
+                
+                explored = false;
+
+                if (type == TileType.Floor)
+                {
+                    impassable = false;
+                    blocksview = false;
+                }
+                else if (type == TileType.Wall)
+                {
+                    impassable = true;
+                    blocksview = true;
+                }
+            }
+        }
+
         /// <summary>
         ///  a 2d array of TileTypes for maps
         /// <param name="Width">the width of the map</param>
@@ -40,19 +77,10 @@ namespace MIST
         /// </summary>
         public Map(int width, int height)
         {
-            MapArray = new ArrayMap2D<TileType>(width, height);
-            ExploredArray = new ArrayMap2D<bool>(width, height);
-            VisibleArray = new ArrayMap2D<bool>(width, height);
+            MapArray = new ArrayMap2D<Tile>(width, height);
 
-            // Initialize both ExploredArray and VisibleArray to be all false
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    ExploredArray[x, y] = false;
-                    VisibleArray[x, y] = false;
-                }
-            }
+
+            
         }
 
 
@@ -71,22 +99,22 @@ namespace MIST
                 for (int y = 0; y < MapArray.Height; y++)
                 {
                     // Generate a random tile
-                    TileType tileType = TileType.Floor;
+                    Tile tile = new Tile(TileType.Floor);
 
                     // 20% chance of a wall
                     if (random.Next(100) < 20)
                     {
-                        tileType = TileType.Wall;
+                        tile = new Tile(TileType.Wall);
                     }
 
                     // If it's a border tile, set it as a wall
                     if (x == 0 || x == MapArray.Width - 1 || y == 0 || y == MapArray.Height - 1)
                     {
-                        tileType = TileType.Wall;
+                        tile = new Tile(TileType.Wall);
                     }
 
                     // Set the tile in the map
-                    map.SetTile(x,y, tileType);
+                    map.SetTile(x,y, tile);
                 }
             }
             return map;
@@ -97,10 +125,10 @@ namespace MIST
         /// <param name="x">the x coordinate to set the tile </param>
         /// <param name="y">the y coordinate to set the tile</param>
         /// <param name="tileType">what type of tile should be set</param>
-        private void SetTile(int x, int y, TileType tileType)
+        private void SetTile(int x, int y, Tile tile)
         {
             // Set the tile in the map
-            MapArray[x, y] = tileType;
+            MapArray[x, y] = tile;
         }
 
         /// <summary>
@@ -115,16 +143,16 @@ namespace MIST
                 {
 
                     // not explored, don't draw
-                    if (ExploredArray[x, y] == false)
+                    if (MapArray[x, y].explored == false)
                     {
                         continue;
                     }
 
-                    if (TileType.Floor == MapArray[x, y])
+                    if (TileType.Floor == MapArray[x, y].TileType)
                     {
 
-                        // if not lit
-                        if (VisibleArray[x, y] == false)
+                        // if lit
+                        if (MapArray[x, y].visible)
                         {
                             surface.SetCellAppearance(x, y, FLOOR_LIT);
                         }
@@ -134,10 +162,10 @@ namespace MIST
                         }
 
                     }
-                    else if (TileType.Wall == MapArray[x, y])
+                    else if (TileType.Wall == MapArray[x, y].TileType)
                     {
-                        // if not lit
-                        if (VisibleArray[x, y] == false){
+                        // if lit
+                        if (MapArray[x, y].visible){
                             surface.SetCellAppearance(x, y, WALL_LIT);
                         } else
                         {
@@ -166,11 +194,10 @@ namespace MIST
             {
                 for (int j = 0; j < MapArray.Height; j++)
                 {
-                    VisibleArray[i, j] = false;
+                    MapArray[i, j].visible = false;
                 }
             }
-
-            // TODO: Update the visible array and explored array using shadowcasting
+            
 
         }
 
