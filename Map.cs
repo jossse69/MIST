@@ -1,6 +1,8 @@
 ﻿using GoRogue.MapViews;
 using SadRogue.Primitives;
 using SadConsole;
+using SadRogue.Primitives.GridViews;
+using static MIST.Map;
 
 
 namespace MIST
@@ -8,7 +10,7 @@ namespace MIST
 
 
 
-    internal class Map
+    internal class Map 
     {
         
         public ArrayMap2D<Tile> MapArray;
@@ -23,7 +25,6 @@ namespace MIST
         public readonly ColoredGlyph FLOOR_LIT = new ColoredGlyph(Color.Purple, Color.Black, '.');
 
         public readonly ColoredGlyph UNDEFINED = new ColoredGlyph(Color.White, Color.Black, '?');
-
 
 
 
@@ -78,7 +79,6 @@ namespace MIST
         public Map(int width, int height)
         {
             MapArray = new ArrayMap2D<Tile>(width, height);
-
 
             
         }
@@ -187,18 +187,9 @@ namespace MIST
         /// </summary>
         /// <param name="x">the x coordinate to were the source is</param>
         /// <param name="y">the y coordinate to were the source is</param>
-         public void UpdateFOV(int x, int y)
+        public void UpdateFOV(int x, int y)
         {
-            // Reset visible array by looping through it
-            for (int i = 0; i < MapArray.Width; i++)
-            {
-                for (int j = 0; j < MapArray.Height; j++)
-                {
-                    MapArray[i, j].visible = false;
-                }
-            }
-            
-
+        
         }
 
 
