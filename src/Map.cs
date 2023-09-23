@@ -166,15 +166,15 @@ namespace MIST
                     var monsterY = random.Next(room.Y, room.Y + room.Height);
                     if (map[monsterX, monsterY].TileType == TileType.Floor)
                     {
-                        var monster = new GameObject(new ColoredGlyph(Color.White, Color.Black, '!'), new Point(monsterX, monsterY), map);
+                        var monster = new GameObject(new ColoredGlyph(Color.White, Color.Black, '!'), new Point(monsterX, monsterY), map,new Fighter(1, 1, 1, 1));
                         // 20% to be an smile, alse its a spider
                         if (random.Next(20) == 0)
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map);
+                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 2, 1));
                         }
                         else
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map);
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 1, 1));
                         }
                         success = true;
                         // add it to the list
@@ -332,7 +332,7 @@ namespace MIST
                 if (_moveTimer <= 0)
                 {
                     var player = ScreenContainer.Instance.Player;
-                    player.TryToMove(dx, dy, this);
+                    player.MoveAndAttack(dx, dy, this, _objects);
                     UpdateFOV(player.Position.X, player.Position.Y, radius: 5);
                     Draw();
 
