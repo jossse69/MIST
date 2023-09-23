@@ -13,7 +13,7 @@ namespace MIST
         public Tile this[int index] { get { return this[Point.FromIndex(index, Width)]; } set { this[Point.FromIndex(index, Width)] = value; } }
 
         private readonly ColoredGlyph WALL = new ColoredGlyph(Color.AnsiBlue, Color.DarkBlue, '#');
-        private readonly ColoredGlyph WALL_LIT = new ColoredGlyph(Color.DarkGray, Color.Brown, '#');
+        private readonly ColoredGlyph WALL_LIT = new ColoredGlyph(Color.DarkGray, Color.Gray, '#');
         private readonly ColoredGlyph FLOOR = new ColoredGlyph(Color.DarkBlue, Color.Black, '.');
         private readonly ColoredGlyph FLOOR_LIT = new ColoredGlyph(Color.Purple, Color.Black, '.');
         private readonly ColoredGlyph UNDEFINED = new ColoredGlyph(Color.White, Color.Black, '?');
@@ -30,7 +30,7 @@ namespace MIST
         public Map(int width, int height) : base(width, height)
         {
             _tiles = new ArrayView<Tile>(width, height);
-            _fov = new RecursiveShadowcastingFOV(new LambdaTranslationGridView<Tile, bool>(_tiles, x => x.BlocksView));
+            _fov = new RecursiveShadowcastingFOV(new LambdaTranslationGridView<Tile, bool>(_tiles, x => !x.BlocksView));
         }
 
         /// <summary>
