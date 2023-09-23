@@ -1,5 +1,4 @@
 ﻿using SadConsole;
-using SadConsole.Input;
 using SadRogue.Primitives;
 
 namespace MIST
@@ -14,6 +13,7 @@ namespace MIST
         public readonly int Width, Height;
 
         public List<GameObject> Objects;
+        public readonly Random Random;
 
         public ScreenContainer()
         {
@@ -21,6 +21,7 @@ namespace MIST
             Width = Constants.ScreenWidth;
             Height = Constants.ScreenHeight;
             Objects = new List<GameObject>();
+            Random = new Random();
 
             // generate the map
             Map = Map.GenerateMap(Width, Height, Objects);
