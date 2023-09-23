@@ -13,15 +13,17 @@ internal class GameObject
 
     public Fighter? fighter { get; set; }
 
+    public Info info { get; set; }
+
     private readonly ColoredGlyph DEAD = new ColoredGlyph(Color.Crimson, Color.Black, '%');
 
-    public GameObject(ColoredGlyph appearance, Point position, IScreenSurface surface, Fighter? Fighter)
+    public GameObject(ColoredGlyph appearance, Point position, IScreenSurface surface, Fighter? Fighter, Info Info)
     {
         Appearance = appearance;
         Position = position;
         hostingSurface = surface;
-        fighter = null;
         fighter = Fighter;
+        info = Info;
         // attach the OnDeath event of the fighter
         fighter.OnDeath += Death;
 
@@ -29,8 +31,17 @@ internal class GameObject
 
     private void Death()
     {
-        System.Console.WriteLine("this thing has died!");
+        // check if its was dead before this call
+        if (fighter.IsDead)
+        {
+            System.Console.WriteLine(info.name + " is smashed to bits!");
+            this.Appearance = new ColoredGlyph();
+            return;
+        }
+
+        System.Console.WriteLine(info.name + " died!");
         Appearance = DEAD;
+        info.name = info.name + " corpse";
     }
 
     public void Draw()
@@ -70,6 +81,11 @@ internal class GameObject
                     continue;
                 }
 
+                // if the traget is a corpse, move it
+                if (obj.fighter.IsDead == true){
+                    continue;
+                }
+
                 obj.fighter?.takeDamage(2, fighter.power);
                 blockedbyobject = true;
                 break;
@@ -97,7 +113,14 @@ internal class GameObject
         {
             if (obj.Position == new Point(x, y))
             {
-                return true;
+                // see if the object has a fighter, if yes, see if the fighter is dead
+                if (obj.fighter != null)
+                {
+                    return !obj.fighter.IsDead;
+                }
+                else{
+                    return true;
+                }
             }
         }
         return false;

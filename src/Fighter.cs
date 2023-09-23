@@ -7,6 +7,7 @@ namespace MIST
         public int power;
         public int defense;
 
+        public bool IsDead { get; set; }
         public event Action? OnDeath; // Define the OnDeath event
 
         public Fighter(int maxHP, int HP, int power, int defense)
@@ -15,6 +16,7 @@ namespace MIST
             this.HP = HP;
             this.power = power;
             this.defense = defense;
+            this.IsDead = false;
         }
 
         public void takeDamage(int damage, int power)
@@ -47,6 +49,7 @@ namespace MIST
             if (HP <= 0)
             {
                 OnDeath?.Invoke(); // Invoke the OnDeath event when HP reaches zero or below
+                IsDead = true;
             }
         }
     }

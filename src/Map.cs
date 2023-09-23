@@ -166,15 +166,15 @@ namespace MIST
                     var monsterY = random.Next(room.Y, room.Y + room.Height);
                     if (map[monsterX, monsterY].TileType == TileType.Floor)
                     {
-                        var monster = new GameObject(new ColoredGlyph(Color.White, Color.Black, '!'), new Point(monsterX, monsterY), map,new Fighter(1, 1, 1, 1));
+                        var monster = new GameObject(new ColoredGlyph(Color.White, Color.Black, '!'), new Point(monsterX, monsterY), map,new Fighter(1, 1, 1, 1), new Info("Undefined", "Undefined", monsterType.UNDEFINED));
                         // 20% to be an smile, alse its a spider
                         if (random.Next(20) == 0)
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 2, 1));
+                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 2, 1), new Info("Smile", "a mass of gelatic green goo... that is alive, it digest any food it comes across.", monsterType.smlie));
                         }
                         else
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 1, 1));
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 1, 1), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something.", monsterType.insect));
                         }
                         success = true;
                         // add it to the list
@@ -334,18 +334,24 @@ namespace MIST
                     var player = ScreenContainer.Instance.Player;
                     player.MoveAndAttack(dx, dy, this, _objects);
                     UpdateFOV(player.Position.X, player.Position.Y, radius: 5);
+
                     Draw();
+                    
+                    // make list of objects to draw
+                    var drawList = new List<GameObject>();
+                    drawList.AddRange(_objects);
+                    
+                    // sort so that dead objects are drawn last
+                    drawList = drawList.OrderBy(obj => obj.fighter?.IsDead).ToList();
 
-                    // draw objects
-                    foreach (var obj in _objects)
+                    // draw the list
+                    for (var obj = 0; obj < drawList.Count; obj++)
                     {
-                        // is lit
-                        if (_fov.BooleanResultView[obj.Position.X, obj.Position.Y]  == true)
-                        {
-                            obj.Draw();
-                        }
-                    }
+                        // if not in FOV, don't draw
+                        if (_fov.BooleanResultView[drawList[obj].Position.X, drawList[obj].Position.Y] == false) continue;
 
+                        drawList[obj].Draw();
+                    }
                     player.Draw();
                     _moveTimer = 5;
                 }
