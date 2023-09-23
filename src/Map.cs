@@ -45,6 +45,11 @@ namespace MIST
             return _fov;
         }
 
+        public ArrayView<Tile> GetTiles()
+        {
+            return _tiles;
+        }
+
         /// <summary>
         /// generates a map with a border and random tiles
         /// <param name="width">the width of the map</param>
@@ -59,7 +64,7 @@ namespace MIST
             {
                 for (int y = 0; y < height; y++)
                 {
-                    map[x, y] = new Tile(TileType.Wall);
+                    map[x, y] = new Tile(TileType.Wall); // floor for debuging
                 }
             }
 
@@ -176,11 +181,11 @@ namespace MIST
                         // 20% to be an smile, alse its a spider
                         if (random.Next(20) == 0)
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 2, 1), new Info("Smile", "a mass of gelatic green goo... that is alive, it digest any food it comes across.", monsterType.smlie), new AI.MonsterAI(map));
+                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 3, 1), new Info("Smile", "a mass of gelatic green goo... that is alive, it digest any food it comes across.", monsterType.smlie), new AI.MonsterAI(map));
                         }
                         else
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 1, 1), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something.", monsterType.insect), new AI.MonsterAI(map));
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something.", monsterType.insect), new AI.MonsterAI(map));
                         }
                         success = true;
                         // add it to the list
@@ -338,10 +343,27 @@ namespace MIST
                 if (_moveTimer <= 0)
                 {
                     var player = ScreenContainer.Instance.Player;
+                    var UI = ScreenContainer.Instance.UI;
+                    if (!player.Fighter.IsDead)
+                    {
                     player.MoveAndAttack(dx, dy, this, _objects);
+                    }
+
                     UpdateFOV(player.Position.X, player.Position.Y, radius: 5);
 
                     Draw();
+
+                    // set visble of map true (debuging purposes)
+                    
+                        for (var x = 0; x < _tiles.Width; x++)
+                        {
+                            for (var y = 0; y < _tiles.Height; y++)
+                            {
+                            //_tiles[x, y].Visible = true;
+                            //_tiles[x, y].Explored = true;
+                            }
+                        }
+                        
 
                     // make list of objects to draw
                     var drawList = _objects.ToList();
@@ -352,6 +374,8 @@ namespace MIST
                         .OrderBy(obj => obj.Fighter?.IsDead)
                         .ToList();
 
+
+
                     // draw the list
                     for (var index = 0; index < drawList.Count; index++)
                     {
@@ -360,14 +384,20 @@ namespace MIST
                         if (obj == null || obj.AI == null) continue;
 
                         // Do AI turn
-                        obj.AI.AITurn(drawList[index], this, _objects);
+                        obj.AI.AITurn(drawList[index], this, _objects, player);
+
+                        
 
                         // if not in FOV, don't draw
-                        if (_fov.BooleanResultView[drawList[index].Position.X, drawList[index].Position.Y] == false) continue;
+                        if (_tiles[obj.Position.X, obj.Position.Y].Visible == false) continue;
 
                         drawList[index].Draw();
                     }
+                    // draw player
                     player.Draw();
+
+                    // draw UI
+                    UI.Draw(player);                    
                     _moveTimer = 5;
                 }
             }
@@ -385,5 +415,9 @@ namespace MIST
             }
         }
 
+        public bool IsInFov(int x, int y)
+        {
+            return _fov.BooleanResultView[x, y];
+        }
     }
 }
