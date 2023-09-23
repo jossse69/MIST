@@ -28,7 +28,7 @@ namespace MIST
             Map.IsFocused = true;
 
             // add the player
-            Player = new GameObject(new ColoredGlyph(Color.White, Color.Black, '@'), Map.start, Map, new Fighter(10, 10, 3, 3), new Info("Player", "It's you!", monsterType.player));
+            Player = new GameObject(new ColoredGlyph(Color.White, Color.Black, '@'), Map.start, Map, new Fighter(10, 10, 3, 3), new Info("Player", "It's you!", monsterType.player), null);
             Player.Draw();
 
 

@@ -39,6 +39,12 @@ namespace MIST
             _objects = objects;
         }
 
+
+        public IFOV GetFOV()
+        {
+            return _fov;
+        }
+
         /// <summary>
         /// generates a map with a border and random tiles
         /// <param name="width">the width of the map</param>
@@ -166,15 +172,15 @@ namespace MIST
                     var monsterY = random.Next(room.Y, room.Y + room.Height);
                     if (map[monsterX, monsterY].TileType == TileType.Floor)
                     {
-                        var monster = new GameObject(new ColoredGlyph(Color.White, Color.Black, '!'), new Point(monsterX, monsterY), map,new Fighter(1, 1, 1, 1), new Info("Undefined", "Undefined", monsterType.UNDEFINED));
+                        var monster = new GameObject(new ColoredGlyph(Color.White, Color.Black, '!'), new Point(monsterX, monsterY), map,new Fighter(1, 1, 1, 1), new Info("Undefined", "Undefined", monsterType.UNDEFINED), null);
                         // 20% to be an smile, alse its a spider
                         if (random.Next(20) == 0)
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 2, 1), new Info("Smile", "a mass of gelatic green goo... that is alive, it digest any food it comes across.", monsterType.smlie));
+                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 2, 1), new Info("Smile", "a mass of gelatic green goo... that is alive, it digest any food it comes across.", monsterType.smlie), new AI.monsterAI(map));
                         }
                         else
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 1, 1), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something.", monsterType.insect));
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 1, 1), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something.", monsterType.insect), new AI.monsterAI(map));
                         }
                         success = true;
                         // add it to the list
@@ -347,6 +353,9 @@ namespace MIST
                     // draw the list
                     for (var obj = 0; obj < drawList.Count; obj++)
                     {
+                        // also update the AI
+                        drawList[obj].AI.AITurn(drawList[obj], this, _objects);
+
                         // if not in FOV, don't draw
                         if (_fov.BooleanResultView[drawList[obj].Position.X, drawList[obj].Position.Y] == false) continue;
 

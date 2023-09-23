@@ -1,4 +1,6 @@
 namespace MIST;
+
+using System;
 using SadConsole;
 using SadRogue.Primitives;
 
@@ -15,19 +17,23 @@ internal class GameObject
 
     public Info info { get; set; }
 
+    public AI.monsterAI? AI { get; set; }
     private readonly ColoredGlyph DEAD = new ColoredGlyph(Color.Crimson, Color.Black, '%');
 
-    public GameObject(ColoredGlyph appearance, Point position, IScreenSurface surface, Fighter? Fighter, Info Info)
+    public GameObject(ColoredGlyph appearance, Point position, IScreenSurface surface, Fighter? Fighter, Info Info,  AI.monsterAI? monsterai)
     {
         Appearance = appearance;
         Position = position;
         hostingSurface = surface;
         fighter = Fighter;
         info = Info;
+        AI = monsterai;
         // attach the OnDeath event of the fighter
         fighter.OnDeath += Death;
 
+
     }
+
 
     private void Death()
     {
