@@ -19,15 +19,17 @@ namespace MIST
             Width = Constants.ScreenWidth;
             Height = Constants.ScreenHeight;
 
-            // First create the map
+            // generate the map
             Map = Map.GenerateMap(Width, Height);
             Map.Draw();
             Map.IsFocused = true;
-            Children.Add(Map);
 
-            // Then create the player
-            Player = new GameObject(new ColoredGlyph(Color.White, Color.Black, '@'), new Point(40, 12), Map);
+            // add the player
+            Player = new GameObject(new ColoredGlyph(Color.White, Color.Black, '@'), Map.start, Map);
             Player.Draw();
+
+
+            Children.Add(Map);
         }
     }
 }

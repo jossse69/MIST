@@ -12,6 +12,8 @@ namespace MIST
         public Tile this[int x, int y] { get { return this[(x, y)]; } set { this[(x, y)] = value; } }
         public Tile this[int index] { get { return this[Point.FromIndex(index, Width)]; } set { this[Point.FromIndex(index, Width)] = value; } }
 
+        public Point start { get; private set; }
+
         private readonly ColoredGlyph WALL = new ColoredGlyph(Color.AnsiBlue, Color.DarkBlue, '#');
         private readonly ColoredGlyph WALL_LIT = new ColoredGlyph(Color.DarkGray, Color.Gray, '#');
         private readonly ColoredGlyph FLOOR = new ColoredGlyph(Color.DarkBlue, Color.Black, '.');
@@ -19,6 +21,7 @@ namespace MIST
         private readonly ColoredGlyph UNDEFINED = new ColoredGlyph(Color.White, Color.Black, '?');
         private readonly ArrayView<Tile> _tiles;
         private readonly IFOV _fov;
+
 
         private int _moveTimer = 0;
 
@@ -41,38 +44,122 @@ namespace MIST
         public static Map GenerateMap(int width, int height)
         {
             var map = new Map(width, height);
-            Random random = new Random();
+
+            // set all tiles in the map to be walls
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    // Generate a random tile
-                    Tile tile;
-
-                    // If it's a border tile, set it as a wall
-                    if (x == 0 || x == width - 1 || y == 0 || y == height - 1)
-                    {
-                        tile = new Tile(TileType.Wall);
-                    }
-                    else
-                    {
-                        // 20% chance of a wall
-                        if (random.Next(100) < 20)
-                        {
-                            tile = new Tile(TileType.Wall);
-                        }
-                        else
-                        {
-                            tile = new Tile(TileType.Floor);
-                        }
-                    }
-
-                    // Set the tile in the map
-                    map[x, y] = tile;
+                    map[x, y] = new Tile(TileType.Wall);
                 }
             }
+
+            var rooms = new List<Rectangle>();
+
+            var MAX_ROOM_SIZE = 6;
+            var MIN_ROOM_SIZE = 3;
+            var MAX_ROOMS = 15;
+
+            Random random = new Random();
+            
+        
+            for (int i = 0; i < MAX_ROOMS; i++)
+            {
+                int roomWidth = random.Next(MIN_ROOM_SIZE, MAX_ROOM_SIZE + 1);
+                int roomHeight = random.Next(MIN_ROOM_SIZE, MAX_ROOM_SIZE + 1);
+
+                int x = random.Next(0, width - roomWidth);
+                int y = random.Next(0, height - roomHeight);
+
+                var newRoom = new Rectangle(x, y, roomWidth, roomHeight);
+
+                // Check if the new room overlaps with any existing rooms
+                bool isOverlapping = rooms.Any(room => newRoom.Intersects(room));
+                if (!isOverlapping)
+                {
+                    // apply the new room to the map
+                    for (x = newRoom.X; x < newRoom.X + newRoom.Width; x++)
+                    {
+                        for (y = newRoom.Y; y < newRoom.Y + newRoom.Height; y++)
+                        {
+                            // if inside bounds of the map, set the tile
+                            if (x >= 0 && x < width && y >= 0 && y < height)
+                            {
+                                map[x, y] = new Tile(TileType.Floor);
+                            }
+                        }
+                    }
+
+
+                    rooms.Add(newRoom);
+                }
+            }
+
+            for (int i = 0; i < rooms.Count - 1; i++)
+            {
+                var roomA = rooms[i];
+                var roomB = rooms[i + 1];
+
+                // Calculate the center points of each room
+                var centerA = new Point(roomA.X + roomA.Width / 2, roomA.Y + roomA.Height / 2);
+                var centerB = new Point(roomB.X + roomB.Width / 2, roomB.Y + roomB.Height / 2);
+
+                // Connect the centers with a series of horizontal and vertical corridors
+                if (random.Next(2) == 0)
+                {
+                    // Horizontal corridor first, then vertical
+                    ConnectHorizontalTunnel(map, centerA.X, centerB.X, centerA.Y);
+                    ConnectVerticalTunnel(map, centerA.Y, centerB.Y, centerB.X);
+                }
+                else
+                {
+                    // Vertical corridor first, then horizontal
+                    ConnectVerticalTunnel(map, centerA.Y, centerB.Y, centerA.X);
+                    ConnectHorizontalTunnel(map, centerA.X, centerB.X, centerB.Y);
+                }
+            }
+
+            // apply a border to the map
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (x == 0 || x == width - 1 || y == 0 || y == height - 1)
+                    {
+                        map[x, y] = new Tile(TileType.Wall);
+                    }
+                }
+            }
+
+
+            // set start at the center of the first room
+            map.start = new Point(rooms[0].Center.X, rooms[0].Center.Y);
+
+
             return map;
         }
+
+
+
+        private static void ConnectHorizontalTunnel(Map map, int startX, int endX, int y)
+        {
+            for (int x = Math.Min(startX, endX); x <= Math.Max(startX, endX); x++)
+            {
+                map._tiles[x, y] = new Tile(TileType.Floor);
+            }
+        }
+
+        private static void ConnectVerticalTunnel(Map map, int startY, int endY, int x)
+        {
+            for (int y = Math.Min(startY, endY); y <= Math.Max(startY, endY); y++)
+            {
+                map._tiles[x, y] = new Tile(TileType.Floor);
+            }
+        }
+
+
+
+            
 
         /// <summary>
         /// draws the map
@@ -219,5 +306,6 @@ namespace MIST
                 _moveTimer--;
             }
         }
+
     }
 }
