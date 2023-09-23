@@ -10,6 +10,7 @@ namespace MIST
 
             Game.Configuration gameStartup = new Game.Configuration()
                 .SetScreenSize(Constants.ScreenWidth, Constants.ScreenHeight)
+                .IsStartingScreenFocused(false)
                 .SetStartingScreen<ScreenContainer>();
 
             Game.Create(gameStartup);
