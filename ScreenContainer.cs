@@ -22,16 +22,12 @@ namespace MIST
             // First create the map
             Map = Map.GenerateMap(Width, Height);
             Map.Draw();
+            Map.IsFocused = true;
             Children.Add(Map);
 
             // Then create the player
             Player = new GameObject(new ColoredGlyph(Color.White, Color.Black, '@'), new Point(40, 12), Map);
             Player.Draw();
-        }
-
-        public override bool ProcessKeyboard(Keyboard keyboard)
-        {
-            return Map.ProcessKeyboard(keyboard);
         }
     }
 }
