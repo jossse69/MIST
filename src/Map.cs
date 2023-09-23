@@ -176,11 +176,11 @@ namespace MIST
                         // 20% to be an smile, alse its a spider
                         if (random.Next(20) == 0)
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 2, 1), new Info("Smile", "a mass of gelatic green goo... that is alive, it digest any food it comes across.", monsterType.smlie), new AI.monsterAI(map));
+                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 2, 1), new Info("Smile", "a mass of gelatic green goo... that is alive, it digest any food it comes across.", monsterType.smlie), new AI.MonsterAI(map));
                         }
                         else
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 1, 1), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something.", monsterType.insect), new AI.monsterAI(map));
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 1, 1), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something.", monsterType.insect), new AI.MonsterAI(map));
                         }
                         success = true;
                         // add it to the list
@@ -342,24 +342,30 @@ namespace MIST
                     UpdateFOV(player.Position.X, player.Position.Y, radius: 5);
 
                     Draw();
-                    
+
                     // make list of objects to draw
-                    var drawList = new List<GameObject>();
-                    drawList.AddRange(_objects);
-                    
-                    // sort so that dead objects are drawn last
-                    drawList = drawList.OrderBy(obj => obj.fighter?.IsDead).ToList();
+                    var drawList = _objects.ToList();
+
+                    // sort so that dead objects are drawn last and only when visible on the map
+                    drawList = drawList
+                        .Where(a => a.IsVisible(this))
+                        .OrderBy(obj => obj.Fighter?.IsDead)
+                        .ToList();
 
                     // draw the list
-                    for (var obj = 0; obj < drawList.Count; obj++)
+                    for (var index = 0; index < drawList.Count; index++)
                     {
                         // also update the AI
-                        drawList[obj].AI.AITurn(drawList[obj], this, _objects);
+                        var obj = drawList[index];
+                        if (obj == null || obj.AI == null) continue;
+
+                        // Do AI turn
+                        obj.AI.AITurn(drawList[index], this, _objects);
 
                         // if not in FOV, don't draw
-                        if (_fov.BooleanResultView[drawList[obj].Position.X, drawList[obj].Position.Y] == false) continue;
+                        if (_fov.BooleanResultView[drawList[index].Position.X, drawList[index].Position.Y] == false) continue;
 
-                        drawList[obj].Draw();
+                        drawList[index].Draw();
                     }
                     player.Draw();
                     _moveTimer = 5;

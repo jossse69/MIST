@@ -13,41 +13,40 @@ internal class GameObject
 
     public IScreenSurface hostingSurface { get; set; }
 
-    public Fighter? fighter { get; set; }
+    public Fighter? Fighter { get; set; }
 
-    public Info info { get; set; }
+    public Info Info { get; set; }
 
-    public AI.monsterAI? AI { get; set; }
+    public AI.MonsterAI? AI { get; set; }
     private readonly ColoredGlyph DEAD = new ColoredGlyph(Color.Crimson, Color.Black, '%');
 
-    public GameObject(ColoredGlyph appearance, Point position, IScreenSurface surface, Fighter? Fighter, Info Info,  AI.monsterAI? monsterai)
+    public GameObject(ColoredGlyph appearance, Point position, IScreenSurface surface, Fighter? fighter, Info info,  AI.MonsterAI? monsterAI)
     {
         Appearance = appearance;
         Position = position;
         hostingSurface = surface;
-        fighter = Fighter;
-        info = Info;
-        AI = monsterai;
+        Fighter = fighter;
+        Info = info;
+        AI = monsterAI;
         // attach the OnDeath event of the fighter
-        fighter.OnDeath += Death;
-
-
+        if (Fighter != null)
+            Fighter.OnDeath += Death;
     }
 
 
     private void Death()
     {
         // check if its was dead before this call
-        if (fighter.IsDead)
+        if (Fighter != null && Fighter.IsDead)
         {
-            System.Console.WriteLine(info.name + " is smashed to bits!");
+            System.Console.WriteLine(Info.name + " is smashed to bits!");
             this.Appearance = new ColoredGlyph();
             return;
         }
 
-        System.Console.WriteLine(info.name + " died!");
+        System.Console.WriteLine(Info.name + " died!");
         Appearance = DEAD;
-        info.name = info.name + " corpse";
+        Info.name = Info.name + " corpse";
     }
 
     public void Draw()
@@ -79,20 +78,23 @@ internal class GameObject
         var blockedbyobject = false;
 
         // see if we will run into an object
-        foreach (var obj in objects){
-            if (obj.Position == new Point(Position.X + dx, Position.Y + dy)){
-
+        foreach (var obj in objects)
+        {
+            if (obj.Position == new Point(Position.X + dx, Position.Y + dy))
+            {
                 // check if we have the fighter, and the traggered object has a fighter
-                if (fighter == null || obj.fighter == null){
+                if (Fighter == null || obj.Fighter == null)
+                {
                     continue;
                 }
 
                 // if the traget is a corpse, move it
-                if (obj.fighter.IsDead == true){
+                if (obj.Fighter.IsDead == true)
+                {
                     continue;
                 }
 
-                obj.fighter?.takeDamage(2, fighter.power);
+                obj.Fighter?.takeDamage(2, Fighter.power);
                 blockedbyobject = true;
                 break;
             }
@@ -104,7 +106,12 @@ internal class GameObject
         }
 
 
-    } 
+    }
+
+    public bool IsVisible(Map map)
+    {
+        return map[Position].Visible;
+    }
 
     public bool IsBlocked(int x, int y, Map map, List<GameObject> objects)
     {
@@ -120,9 +127,9 @@ internal class GameObject
             if (obj.Position == new Point(x, y))
             {
                 // see if the object has a fighter, if yes, see if the fighter is dead
-                if (obj.fighter != null)
+                if (obj.Fighter != null)
                 {
-                    return !obj.fighter.IsDead;
+                    return !obj.Fighter.IsDead;
                 }
                 else{
                     return true;
