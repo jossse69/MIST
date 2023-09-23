@@ -13,14 +13,17 @@ namespace MIST
         public readonly Map Map;
         public readonly int Width, Height;
 
+        public List<GameObject> Objects;
+
         public ScreenContainer()
         {
             Instance = this;
             Width = Constants.ScreenWidth;
             Height = Constants.ScreenHeight;
+            Objects = new List<GameObject>();
 
             // generate the map
-            Map = Map.GenerateMap(Width, Height);
+            Map = Map.GenerateMap(Width, Height, Objects);
             Map.Draw();
             Map.IsFocused = true;
 

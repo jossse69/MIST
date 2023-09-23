@@ -22,6 +22,8 @@ namespace MIST
         private readonly ArrayView<Tile> _tiles;
         private readonly IFOV _fov;
 
+        private List<GameObject> _objects;
+
 
         private int _moveTimer = 0;
 
@@ -30,10 +32,11 @@ namespace MIST
         /// <param name="Width">the width of the map</param>
         /// <param name="Height">the height of the map</param>
         /// </summary>
-        public Map(int width, int height) : base(width, height)
+        public Map(int width, int height, List<GameObject> objects) : base(width, height)
         {
             _tiles = new ArrayView<Tile>(width, height);
             _fov = new RecursiveShadowcastingFOV(new LambdaTranslationGridView<Tile, bool>(_tiles, x => !x.BlocksView));
+            _objects = objects;
         }
 
         /// <summary>
@@ -41,9 +44,9 @@ namespace MIST
         /// <param name="width">the width of the map</param>
         /// <param name="height">the height of the map</param>
         /// </summary>
-        public static Map GenerateMap(int width, int height)
+        public static Map GenerateMap(int width, int height, List<GameObject> objects)
         {
-            var map = new Map(width, height);
+            var map = new Map(width, height, objects);
 
             // set all tiles in the map to be walls
             for (int x = 0; x < width; x++)
@@ -135,8 +138,51 @@ namespace MIST
             // set start at the center of the first room
             map.start = new Point(rooms[0].Center.X, rooms[0].Center.Y);
 
+            // create some monsters in the rooms
+            foreach (var room in rooms)
+            {
+                // if its not the first room, create a monster
+                if (rooms.IndexOf(room) != 0)
+                {
+                    map.CreateMonster(map, room);
+                }
+            }
+
 
             return map;
+        }
+
+
+        private void CreateMonster(Map map, Rectangle room)
+        {
+           
+            var random = new Random();
+            for (int x =0; x < random.Next(0, 4); x++)
+            {
+                var success = false;
+                while (!success)
+                {
+                    var monsterX = random.Next(room.X, room.X + room.Width);
+                    var monsterY = random.Next(room.Y, room.Y + room.Height);
+                    if (map[monsterX, monsterY].TileType == TileType.Floor)
+                    {
+                        var monster = new GameObject(new ColoredGlyph(Color.White, Color.Black, '!'), new Point(monsterX, monsterY), map);
+                        // 20% to be an smile, alse its a spider
+                        if (random.Next(20) == 0)
+                        {
+                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map);
+                        }
+                        else
+                        {
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map);
+                        }
+                        success = true;
+                        // add it to the list
+                        map._objects.Add(monster);
+                    }
+                }
+           
+            }
         }
 
 
@@ -289,6 +335,17 @@ namespace MIST
                     player.TryToMove(dx, dy, this);
                     UpdateFOV(player.Position.X, player.Position.Y, radius: 5);
                     Draw();
+
+                    // draw objects
+                    foreach (var obj in _objects)
+                    {
+                        // is lit
+                        if (_fov.BooleanResultView[obj.Position.X, obj.Position.Y]  == true)
+                        {
+                            obj.Draw();
+                        }
+                    }
+
                     player.Draw();
                     _moveTimer = 5;
                 }
