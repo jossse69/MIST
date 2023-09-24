@@ -22,7 +22,7 @@ namespace MIST
         public void takeDamage(int damage, int power)
         {
             var rng = new Random();
-            var dmg = rng.Next(damage - defense, damage * power);
+            var dmg = Math.Max(rng.Next(damage - defense, damage * power), 0);
 
             System.Console.WriteLine("did " + dmg + " physical damage.");
 

@@ -23,9 +23,14 @@ namespace MIST.AI
             }
 
             // player alive, and monster is in fov
-            if (!player.Fighter.IsDead && map.IsInFov(go.Position.X, go.Position.Y))
+            if (!player.Fighter.IsDead)
             {
-                Target = player.Position;
+                // if its in fov, move to it
+                if (map.IsInFov(player.Position.X, player.Position.Y))
+                {
+                    Target = player.Position;
+                }
+
             } else if (Target == new Point(-1, -1))
             {
                 
