@@ -82,8 +82,8 @@ namespace MIST
                 int roomWidth = random.Next(MIN_ROOM_SIZE, MAX_ROOM_SIZE + 1);
                 int roomHeight = random.Next(MIN_ROOM_SIZE, MAX_ROOM_SIZE + 1);
 
-                int x = random.Next(0, width - roomWidth);
-                int y = random.Next(5, height  - roomHeight);
+                int x = random.Next(0, Math.Clamp(width - roomWidth, 0, 78 - roomWidth));
+                int y = random.Next(8, height  - roomHeight);
 
                 var newRoom = new Rectangle(x, y, roomWidth, roomHeight);
 
@@ -138,7 +138,7 @@ namespace MIST
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (x == 0 || x == width - 1 || y <= 5 || y == height - 2)
+                    if (x == 0 || x == width + 78 || y <= 5 || y == height)
                     {
                         map[x, y] = new Tile(TileType.Wall);
                     }

@@ -2,7 +2,7 @@
 {
     internal class Constants
     {
-        public const int ScreenWidth = 80;
-        public const int ScreenHeight = 25;
+        public const int ScreenWidth = 120;
+        public const int ScreenHeight = 37;
     }
 }
