@@ -20,7 +20,8 @@ internal class GameObject
     public AI.MonsterAI? AI { get; set; }
     private readonly ColoredGlyph DEAD = new ColoredGlyph(Color.Crimson, Color.Black, '%');
 
-    public GameObject(ColoredGlyph appearance, Point position, IScreenSurface surface, Fighter? fighter, Info info,  AI.MonsterAI? monsterAI)
+    private UI UI;
+    public GameObject(ColoredGlyph appearance, Point position, IScreenSurface surface, Fighter? fighter, Info info,  AI.MonsterAI? monsterAI, UI ui)
     {
         Appearance = appearance;
         Position = position;
@@ -28,6 +29,7 @@ internal class GameObject
         Fighter = fighter;
         Info = info;
         AI = monsterAI;
+        UI = ui;
         // attach the OnDeath event of the fighter
         if (Fighter != null)
             Fighter.OnDeath += Death;
@@ -37,14 +39,8 @@ internal class GameObject
     private void Death()
     {
         // check if its was dead before this call
-        if (Fighter != null && Fighter.IsDead)
-        {
-            System.Console.WriteLine(Info.name + " is smashed to bits!");
-            this.Appearance = new ColoredGlyph();
-            return;
-        }
 
-        System.Console.WriteLine(Info.name + " died!");
+        UI.SendMessage(Info.name + " died!");
         Appearance = DEAD;
         Info.name = Info.name + " corpse";
     }
@@ -97,6 +93,7 @@ internal class GameObject
                 // if the monster is not of same type, attack
                 if (obj.Info.type != Info.type)
                 {
+                    UI.SendMessage(Info.name + " attacks!");
                     obj.Fighter?.takeDamage(2, Fighter.power);
                 }
                 

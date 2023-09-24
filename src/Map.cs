@@ -55,7 +55,7 @@ namespace MIST
         /// <param name="width">the width of the map</param>
         /// <param name="height">the height of the map</param>
         /// </summary>
-        public static Map GenerateMap(int width, int height, List<GameObject> objects)
+        public static Map GenerateMap(int width, int height, List<GameObject> objects, UI ui)
         {
             var map = new Map(width, height, objects);
 
@@ -83,7 +83,7 @@ namespace MIST
                 int roomHeight = random.Next(MIN_ROOM_SIZE, MAX_ROOM_SIZE + 1);
 
                 int x = random.Next(0, width - roomWidth);
-                int y = random.Next(2, height  - roomHeight);
+                int y = random.Next(5, height  - roomHeight);
 
                 var newRoom = new Rectangle(x, y, roomWidth, roomHeight);
 
@@ -138,7 +138,7 @@ namespace MIST
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (x == 0 || x == width - 1 || y == 0 || y == height - 2)
+                    if (x == 0 || x == width - 1 || y <= 5 || y == height - 2)
                     {
                         map[x, y] = new Tile(TileType.Wall);
                     }
@@ -155,7 +155,7 @@ namespace MIST
                 // if its not the first room, create a monster
                 if (rooms.IndexOf(room) != 0)
                 {
-                    map.CreateMonster(map, room);
+                    map.CreateMonster(map, room, ui);
                 }
             }
 
@@ -164,32 +164,36 @@ namespace MIST
         }
 
 
-        private void CreateMonster(Map map, Rectangle room)
+        private void CreateMonster(Map map, Rectangle room, UI ui)
         {
            
             var random = new Random();
-            for (int x =0; x < random.Next(0, 4); x++)
+            for (int x = 0; x < random.Next(0, 4); x++)
             {
-                var success = false;
-                while (!success)
+                var trys = 4;
+                while (trys != 0)
                 {
                     var monsterX = random.Next(room.X, room.X + room.Width);
                     var monsterY = random.Next(room.Y, room.Y + room.Height);
                     if (map[monsterX, monsterY].TileType == TileType.Floor)
                     {
-                        var monster = new GameObject(new ColoredGlyph(Color.White, Color.Black, '!'), new Point(monsterX, monsterY), map,new Fighter(1, 1, 1, 1), new Info("Undefined", "Undefined", monsterType.UNDEFINED), null);
-                        // 20% to be an smile, alse its a spider
+                        var monster = new GameObject(new ColoredGlyph(Color.White, Color.Black, '!'), new Point(monsterX, monsterY), map,new Fighter(1, 1, 1, 1, ui), new Info("Undefined", "Undefined", monsterType.UNDEFINED), null, ui);
+                        // 20% to be an smlie, alse its a spider
                         if (random.Next(20) == 0)
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 3, 1), new Info("Smile", "a mass of gelatic green goo... that is alive, it digests any food it comes across.", monsterType.smlie), new AI.MonsterAI());
+                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 3, 1, ui), new Info("Smile", "a mass of gelatic green goo... that is alive, it digests any food it comes across.", monsterType.smlie), new AI.MonsterAI(), ui);
                         }
                         else
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something.", monsterType.insect), new AI.MonsterAI());
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1, ui), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something.", monsterType.insect), new AI.MonsterAI(), ui);
                         }
-                        success = true;
                         // add it to the list
                         map._objects.Add(monster);
+                        break;
+                    }
+                    else
+                    {
+                        trys--;
                     }
                 }
            
@@ -294,22 +298,22 @@ namespace MIST
             var dx = 0;
             var dy = 0;
 
-            if (keyboard.IsKeyDown(Keys.NumPad4))
+            if (keyboard.IsKeyDown(Keys.NumPad4) || keyboard.IsKeyDown(Keys.A))
             {
                 dx = -1;
                 processed = true;
             }
-            else if (keyboard.IsKeyDown(Keys.NumPad6))
+            else if (keyboard.IsKeyDown(Keys.NumPad6) || keyboard.IsKeyDown(Keys.D))
             {
                 dx = 1;
                 processed = true;
             }
-            else if (keyboard.IsKeyDown(Keys.NumPad8))
+            else if (keyboard.IsKeyDown(Keys.NumPad8) || keyboard.IsKeyDown(Keys.W))
             {
                 dy = -1;
                 processed = true;
             }
-            else if (keyboard.IsKeyDown(Keys.NumPad2))
+            else if (keyboard.IsKeyDown(Keys.NumPad2) || keyboard.IsKeyDown(Keys.S))
             {
                 dy = 1;
                 processed = true;

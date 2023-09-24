@@ -26,15 +26,16 @@ namespace MIST
             Random = new Random();
             UI = new UI(this);
             // generate the map
-            Map = Map.GenerateMap(Width, Height, Objects);
+            Map = Map.GenerateMap(Width, Height, Objects, UI);
             Map.IsFocused = true;
 
             // add the player
-            Player = new GameObject(new ColoredGlyph(Color.White, Color.Black, '@'), Map.start, Map, new Fighter(30, 30, 3, 3), new Info("Player", "It's you!", monsterType.player), null);
+            Player = new GameObject(new ColoredGlyph(Color.White, Color.Black, '@'), Map.start, Map, new Fighter(30, 30, 3, 3, UI), new Info("Player", "It's you!", monsterType.player), null, UI);
             Objects.Add(Player);
             Map.UpdateFOV(Player.Position.X, Player.Position.Y, 5);
             Map.Draw();
             Player.Draw();
+            UI.SendMessage("Welcome! this is a test message.");
             UI.Draw(Player);
 
             Children.Add(Map);

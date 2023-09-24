@@ -10,13 +10,16 @@ namespace MIST
         public bool IsDead { get; set; }
         public event Action? OnDeath; // Define the OnDeath event
 
-        public Fighter(int maxHP, int HP, int power, int defense)
+        public UI ui;
+
+        public Fighter(int maxHP, int HP, int power, int defense, UI UI)
         {
             this.maxHP = maxHP;
             this.HP = HP;
             this.power = power;
             this.defense = defense;
             this.IsDead = false;
+            this.ui = UI;
         }
 
         public void takeDamage(int damage, int power)
@@ -24,11 +27,11 @@ namespace MIST
             var rng = new Random();
             var dmg = Math.Max(rng.Next(damage - defense, damage * power), 0);
 
-            System.Console.WriteLine("did " + dmg + " physical damage.");
+            ui.SendMessage("did " + dmg + " physical damage.");
 
             if (dmg <= 0)
             {
-                System.Console.WriteLine("It's very uneffective...");
+                ui.SendMessage("It's very uneffective...");
             }
             else
             {
@@ -36,7 +39,7 @@ namespace MIST
                 if (rng.Next(100) < 25)
                 {
                     dmg *= 2;
-                    System.Console.WriteLine("Critical Hit!");
+                    ui.SendMessage("Critical Hit!");
                     HP -= dmg;
                 }
                 else
