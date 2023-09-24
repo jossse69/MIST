@@ -4,7 +4,7 @@ namespace MIST
     {
         UNDEFINED,
         player,
-        smlie,
+        slime,
         insect,
         humanoid,
         human,

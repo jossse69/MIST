@@ -26,6 +26,7 @@ namespace MIST
 
 
         private int _moveTimer = 0;
+        public List<items.Item> items;
 
         /// <summary>
         ///  a 2d array of TileTypes for maps
@@ -55,9 +56,10 @@ namespace MIST
         /// <param name="width">the width of the map</param>
         /// <param name="height">the height of the map</param>
         /// </summary>
-        public static Map GenerateMap(int width, int height, List<GameObject> objects, UI ui)
+        public static Map GenerateMap(int width, int height, List<GameObject> objects, UI ui, List<items.Item> items)
         {
             var map = new Map(width, height, objects);
+            map.items = items;
 
             // set all tiles in the map to be walls
             for (int x = 0; x < width; x++)
@@ -177,15 +179,15 @@ namespace MIST
                     var monsterY = random.Next(room.Y, room.Y + room.Height);
                     if (map[monsterX, monsterY].TileType == TileType.Floor)
                     {
-                        var monster = new GameObject(new ColoredGlyph(Color.White, Color.Black, '!'), new Point(monsterX, monsterY), map,new Fighter(1, 1, 1, 1, ui), new Info("Undefined", "Undefined", monsterType.UNDEFINED), null, ui);
+                        var monster = new GameObject(new ColoredGlyph(Color.White, Color.Black, '!'), new Point(monsterX, monsterY), map,new Fighter(1, 1, 1, 1, ui, monsterType.UNDEFINED), new Info("Undefined", "Undefined"), null, ui);
                         // 20% to be an smlie, alse its a spider
                         if (random.Next(20) == 0)
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 3, 1, ui), new Info("Smile", "a mass of gelatic green goo... that is alive, it digests any food it comes across.", monsterType.smlie), new AI.MonsterAI(), ui);
+                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 3, 1, ui, monsterType.slime), new Info("Slime", "a mass of gelatic green goo... that is alive, it digests any food it comes across."), new AI.MonsterAI(), ui);
                         }
                         else
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1, ui), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something.", monsterType.insect), new AI.MonsterAI(), ui);
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1, ui, monsterType.insect), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something."), new AI.MonsterAI(), ui);
                         }
                         // add it to the list
                         map._objects.Add(monster);
@@ -368,6 +370,18 @@ namespace MIST
                             //_tiles[x, y].Explored = true;
                             }
                         }
+
+                    // draw item on floor
+                    foreach (var item in items)
+                    {
+                        // dont cotinue if it doesn't exist
+                        if (item.Object == null) continue;
+
+                        // if not in FOV, don't draw
+                        if (IsInFov((int)item.Object?.Position.X, (int)(item.Object?.Position.Y)) == false) continue;
+
+                        item.Object?.Draw();
+                    }
                         
 
                     // make list of objects to draw

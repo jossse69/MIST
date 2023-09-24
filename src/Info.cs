@@ -6,13 +6,10 @@ namespace MIST
 
         public string description;
 
-        public monsterType type;
-
-        public Info(string name, string description, monsterType type)
+        public Info(string name, string description)
         {
             this.name = name;
             this.description = description;
-            this.type = type;
         }
 
     }

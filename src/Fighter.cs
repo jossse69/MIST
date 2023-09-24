@@ -10,9 +10,10 @@ namespace MIST
         public bool IsDead { get; set; }
         public event Action? OnDeath; // Define the OnDeath event
 
+        public monsterType type;
         public UI ui;
 
-        public Fighter(int maxHP, int HP, int power, int defense, UI UI)
+        public Fighter(int maxHP, int HP, int power, int defense, UI UI, monsterType type)
         {
             this.maxHP = maxHP;
             this.HP = HP;
@@ -20,6 +21,7 @@ namespace MIST
             this.defense = defense;
             this.IsDead = false;
             this.ui = UI;
+            this.type = type;
         }
 
         public void takeDamage(int damage, int power)

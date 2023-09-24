@@ -91,7 +91,7 @@ internal class GameObject
                 }
 
                 // if the monster is not of same type, attack
-                if (obj.Info.type != Info.type)
+                if (obj.Fighter.type != Fighter.type)
                 {
                     UI.SendMessage(Info.name + " attacks!");
                     obj.Fighter?.takeDamage(2, Fighter.power);
@@ -126,7 +126,7 @@ internal class GameObject
          // check for objects
         foreach (var obj in objects)
         {
-            if (obj.Position == new Point(x, y))
+            if (obj.Position == new Point(x, y) && obj.Fighter?.type != monsterType.UNDEFINED)
             {
                 // see if the object has a fighter, if yes, see if the fighter is dead
                 if (obj.Fighter != null)
