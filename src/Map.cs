@@ -3,6 +3,7 @@ using SadConsole;
 using SadRogue.Primitives.GridViews;
 using GoRogue.FOV;
 using SadConsole.Input;
+using SadConsole.Effects;
 
 namespace MIST
 {
@@ -22,9 +23,8 @@ namespace MIST
         private readonly ArrayView<Tile> _tiles;
         private readonly IFOV _fov;
 
+        private Point PreviousMouseScreenPosition;
         private List<GameObject> _objects;
-
-
         private int _moveTimer = 0;
         public List<items.Item> items;
 
@@ -183,11 +183,11 @@ namespace MIST
                         // 20% to be an smlie, alse its a spider
                         if (random.Next(20) == 0)
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 3, 1, ui, monsterType.slime), new Info("Slime", "a mass of gelatic green goo... that is alive, it digests any food it comes across."), new AI.MonsterAI(), ui);
+                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 3, 1, ui, monsterType.slime), new Info("Slime", "a mass of living gelatic green goo."), new AI.MonsterAI(), ui);
                         }
                         else
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1, ui, monsterType.insect), new Info("Spider", "a oddly big arachnid. its black and has a big skull-shaped symbol on it's abdomen, that probably means something."), new AI.MonsterAI(), ui);
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1, ui, monsterType.insect), new Info("Spider", "a oddly big arachnid. spooky!"), new AI.MonsterAI(), ui);
                         }
                         // add it to the list
                         map._objects.Add(monster);
@@ -293,8 +293,28 @@ namespace MIST
         public override bool ProcessKeyboard(Keyboard keyboard)
         {
             var processed = false;
+            var player = ScreenContainer.Instance.Player;
+            var UI = ScreenContainer.Instance.UI;
 
-            
+            // grab key
+            if (keyboard.IsKeyPressed(Keys.G)){
+                UI.AskDirection();
+
+                UI.Draw(player);
+
+            };
+
+             // on ESC key, cancel
+            if (keyboard.IsKeyPressed(Keys.Escape))
+            {
+                if (UI.state == "askdirection")
+                {
+                    UI.state = "none";
+                    UI.ingame = true;
+                    UI.SendMessage("Nevermind...");
+                    UI.Draw(player);
+                }
+            }
 
             // move player with numbpad
             var dx = 0;
@@ -344,82 +364,99 @@ namespace MIST
                 dy = -1;
                 processed = true;
             }
+            else
+            {
+            }
+
 
             if (processed)
-            {
+            {   if (UI.ingame)
+                {
                 // move player if the movetimer expired
                 if (_moveTimer <= 0)
                 {
-                    var player = ScreenContainer.Instance.Player;
-                    var UI = ScreenContainer.Instance.UI;
+                    
                     if (player.Fighter.IsDead) return false;
 
-                    player.MoveAndAttack(dx, dy, this, _objects);
-
-                    UpdateFOV(player.Position.X, player.Position.Y, radius: 5);
-
-                    Draw();
-
-                    // set visble of map true (debuging purposes)
                     
-                        for (var x = 0; x < _tiles.Width; x++)
-                        {
-                            for (var y = 0; y < _tiles.Height; y++)
+                        player.MoveAndAttack(dx, dy, this, _objects);
+
+                        UpdateFOV(player.Position.X, player.Position.Y, radius: 5);
+
+                        Draw();
+
+                        // set visble of map true (debuging purposes)
+                        
+                            for (var x = 0; x < _tiles.Width; x++)
                             {
-                            //_tiles[x, y].Visible = true;
-                            //_tiles[x, y].Explored = true;
+                                for (var y = 0; y < _tiles.Height; y++)
+                                {
+                                //_tiles[x, y].Visible = true;
+                                //_tiles[x, y].Explored = true;
+                                }
                             }
+
+                        // draw item on floor
+                        foreach (var item in items)
+                        {
+                            // dont cotinue if it doesn't exist
+                            if (item.Object == null) continue;
+
+                            // if not in FOV, don't draw
+                            if (IsInFov((int)item.Object?.Position.X, (int)(item.Object?.Position.Y)) == false) continue;
+
+                            item.Object?.Draw();
                         }
+                            
 
-                    // draw item on floor
-                    foreach (var item in items)
-                    {
-                        // dont cotinue if it doesn't exist
-                        if (item.Object == null) continue;
+                        // make list of objects to draw
+                        var drawList = _objects.ToList();
 
-                        // if not in FOV, don't draw
-                        if (IsInFov((int)item.Object?.Position.X, (int)(item.Object?.Position.Y)) == false) continue;
+                        // sort so that dead objects are drawn last and only when visible on the map
+                        drawList = drawList
+                            .Where(a => a.IsVisible(this))
+                            .OrderBy(obj => obj.Fighter?.IsDead)
+                            .ToList();
 
-                        item.Object?.Draw();
+
+
+                        // draw the list
+                        for (var index = 0; index < drawList.Count; index++)
+                        {
+                            // also update the AI
+                            var obj = drawList[index];
+                            if (obj == null || obj.AI == null) continue;
+
+                            // Do AI turn
+                            obj.AI.AITurn(drawList[index], this, _objects, player);
+
+                            
+
+                            // if not in FOV, don't draw
+                            if (_tiles[obj.Position.X, obj.Position.Y].Visible == false) continue;
+
+                            drawList[index].Draw();
+                        }
+                        // draw player
+                        player.Draw();
+
+                        // draw UI
+                        UI.Draw(player);                    
+                        _moveTimer = 9;
                     }
-                        
-
-                    // make list of objects to draw
-                    var drawList = _objects.ToList();
-
-                    // sort so that dead objects are drawn last and only when visible on the map
-                    drawList = drawList
-                        .Where(a => a.IsVisible(this))
-                        .OrderBy(obj => obj.Fighter?.IsDead)
-                        .ToList();
-
-
-
-                    // draw the list
-                    for (var index = 0; index < drawList.Count; index++)
+                }
+                else
+                {
+                    // if we are asking for a direction
+                    if (UI.state == "askdirection")
                     {
-                        // also update the AI
-                        var obj = drawList[index];
-                        if (obj == null || obj.AI == null) continue;
 
-                        // Do AI turn
-                        obj.AI.AITurn(drawList[index], this, _objects, player);
-
-                        
-
-                        // if not in FOV, don't draw
-                        if (_tiles[obj.Position.X, obj.Position.Y].Visible == false) continue;
-
-                        drawList[index].Draw();
+                        UI.ReciveDirection(dx, dy);
+                        System.Console.WriteLine("Direction was: " + UI.LastDirection);
                     }
-                    // draw player
-                    player.Draw();
-
-                    // draw UI
-                    UI.Draw(player);                    
-                    _moveTimer = 9;
                 }
             }
+            
 
             return processed;
         }
@@ -437,6 +474,49 @@ namespace MIST
         public bool IsInFov(int x, int y)
         {
             return _fov.BooleanResultView[x, y];
+        }
+
+        public override bool ProcessMouse(MouseScreenObjectState state)
+        {
+            var processed = false;
+
+            // get the mouse position in cells
+            var mouseX = Math.Clamp(state.Mouse.ScreenPosition.X / this.Font.GlyphWidth, 0, this.Surface.Width - 1);
+            var mouseY = Math.Clamp(state.Mouse.ScreenPosition.Y / this.Font.GlyphHeight, 0, this.Surface.Height - 1);
+
+            if (state.Mouse.ScreenPosition != PreviousMouseScreenPosition)
+            {              
+
+                PreviousMouseScreenPosition = state.Mouse.ScreenPosition;
+                processed = true;
+            }
+
+            if (state.Mouse.LeftClicked)
+            {
+                // check if the mouse is in the FOV
+                if (IsInFov(mouseX, mouseY))
+                {
+                    // check if we clicked on a object
+                    foreach (var obj in _objects)
+                    {
+                        if (mouseX == obj.Position.X && mouseY == obj.Position.Y)
+                        {
+                            // display info on UI
+                            var ui = ScreenContainer.Instance.UI;
+                            var player = ScreenContainer.Instance.Player;
+                            ui.SendMessage("You analyse "+ obj.Info.name + ".");
+                            ui.SendMessage(obj.Info.description);
+                            ui.Draw(player);
+                            processed = true;
+                            break;
+                        }
+                    }
+                }
+
+            }
+
+            return processed;
+
         }
     }
 }

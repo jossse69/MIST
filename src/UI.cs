@@ -4,6 +4,7 @@ using SadRogue.Primitives.GridViews;
 using SadConsole.Input;
 using GoRogue.Messaging;
 using GoRogue;
+using SadConsole.Ansi;
 namespace MIST
 {
     internal class UI
@@ -11,8 +12,11 @@ namespace MIST
         public ScreenContainer display { get; set; }
 
         public List<string> Messages { get; set; }
+        public static Point LastDirection { get; private set; }
 
+        public bool ingame = true;
 
+        public string state = "none";
         public UI(ScreenContainer Display)
         {
             display = Display;
@@ -71,6 +75,21 @@ namespace MIST
         public void SendMessage(string message)
         {
             Messages.Add(message);
+        }
+
+        public void AskDirection()
+        {
+            SendMessage("Please enter a direction:");
+            SendMessage("Press a movement key to input.");
+
+            ingame = false;
+            state = "askdirection";
+
+        }
+
+        public static void ReciveDirection(int x, int y)
+        {
+            LastDirection = new Point(x, y);
         }
     }
 }

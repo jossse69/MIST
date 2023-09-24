@@ -42,7 +42,9 @@ internal class GameObject
 
         UI.SendMessage(Info.name + " died!");
         Appearance = DEAD;
+        Info.description = "the gross guts of " + Info.name + ", R.I.P.";
         Info.name = Info.name + " corpse";
+         
     }
 
     public void Draw()
