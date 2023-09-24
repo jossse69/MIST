@@ -20,8 +20,12 @@ namespace MIST
 
         public void Draw(GameObject player)
         {
+            var Height = 0;
+            var surface = display.Map;
 
-            display.Map.Print(0,0, "HP: " + player.Fighter.HP + " / " + player.Fighter.maxHP);
+            surface.DrawLine(new Point(0,Height ), new Point(display.Width, Height), ' ', Color.White, Color.Black);
+            surface.Print(0,Height , "HP: " + player.Fighter.HP + " / " + player.Fighter.maxHP);
+
 
         }
     }

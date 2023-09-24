@@ -94,7 +94,12 @@ internal class GameObject
                     continue;
                 }
 
-                obj.Fighter?.takeDamage(2, Fighter.power);
+                // if the monster is not of same type, attack
+                if (obj.Info.type != Info.type)
+                {
+                    obj.Fighter?.takeDamage(2, Fighter.power);
+                }
+                
                 blockedbyobject = true;
                 break;
             }
