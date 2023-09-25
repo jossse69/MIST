@@ -5,6 +5,7 @@ using SadConsole.Input;
 using GoRogue.Messaging;
 using GoRogue;
 using SadConsole.Ansi;
+using MIST.items;
 namespace MIST
 {
     internal class UI
@@ -17,6 +18,10 @@ namespace MIST
         public bool ingame = true;
 
         public string state = "none";
+
+        public string inaction = "none";
+
+        public List<Item> playerinventory = new List<Item>();
         public UI(ScreenContainer Display)
         {
             display = Display;
@@ -30,6 +35,7 @@ namespace MIST
             var logheight = display.Height;
             var logwidth = 79;
             var surface = display.Map;
+            var maxiventoryroom = 10;
 
             // draw the background
             for (var i = 0; i < width; i++)
@@ -70,6 +76,34 @@ namespace MIST
                 surface.Print(logwidth + 1, y, message);
                 y++;
             }
+
+            // if we are also in the inventory, draw it
+            if (inaction == "inventory")
+            {
+                surface.DrawBox(new Rectangle(10, 10, 60, 20),ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.DarkGray, Color.Black), new ColoredGlyph(Color.Black, Color.Black)));
+                surface.Print(13, 10, "Inventory", Color.Black, Color.DarkGray);
+                //draw each item
+                var i = 0;
+
+                for (var j = 0; j < maxiventoryroom; j++)
+                {
+                    surface.Print(13, j + 13, "-", Color.DarkGray);
+                }
+
+                // if inventory is empty
+                if (playerinventory.Count > 0)
+                {
+                    foreach (var item in playerinventory)
+                    {
+                        if (item != null)
+                        {
+                            surface.Print(13, i + 13, item.Object?.Info.name, Color.White);
+                            i++;
+                        }
+                    }
+                }
+
+            }
         }
 
         public void SendMessage(string message)
@@ -79,17 +113,36 @@ namespace MIST
 
         public void AskDirection()
         {
-            SendMessage("Please enter a direction:");
-            SendMessage("Press a movement key to input.");
-
+            
             ingame = false;
             state = "askdirection";
-
+            SendMessage("Please enter a direction:");
+            SendMessage("Press a movement key to input.");
         }
 
-        public static void ReciveDirection(int x, int y)
+        public void ReciveDirection(int x, int y, GameObject player)
         {
             LastDirection = new Point(x, y);
+
+            if (inaction == "pickup")
+            {
+                // loop through all items and see if we can pickup the item at the position of the direction
+                foreach (var item in display.Map.items)
+                {
+                    if (item.Object?.Position == new Point(player.Position.X + x, player.Position.Y + y))
+                    {
+                        SendMessage("You pick up '" + item.Object.Info.name + "'.");
+                        Draw(player);
+                        item.Object.MoveTo(new Point(-1,-1));
+                        inaction = "none";
+                        state = "none";
+                        ingame = true;
+
+                        // add the item to the inventory
+                        playerinventory.Add(item);
+                    }
+                }
+            }
         }
     }
 }

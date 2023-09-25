@@ -235,7 +235,10 @@ namespace MIST
                 for (int y = 0; y < _tiles.Height; y++)
                 {
                     // not explored, don't draw
-                    if (_tiles[x, y].Explored == false) continue;
+                    if (_tiles[x, y].Explored == false) {
+                        Surface.SetCellAppearance(x, y, new ColoredGlyph(Color.Black, Color.Black, ' '));
+                        continue;
+                    }
 
                     if (TileType.Floor == _tiles[x, y].TileType)
                     {
@@ -298,10 +301,18 @@ namespace MIST
 
             // grab key
             if (keyboard.IsKeyPressed(Keys.G)){
+                UI.inaction = "pickup";
                 UI.AskDirection();
-
                 UI.Draw(player);
 
+            };
+
+            // inventory key
+            if (keyboard.IsKeyPressed(Keys.I))
+            {
+                UI.inaction = "inventory";
+                UI.ingame = false;
+                UI.Draw(player);
             };
 
              // on ESC key, cancel
@@ -309,10 +320,18 @@ namespace MIST
             {
                 if (UI.state == "askdirection")
                 {
+                    UI.inaction = "none";
                     UI.state = "none";
                     UI.ingame = true;
                     UI.SendMessage("Nevermind...");
                     UI.Draw(player);
+                }
+                else if (UI.inaction == "inventory")
+                {
+                    UI.inaction = "none";
+                    UI.state = "none";
+                    UI.ingame = true;
+                    processed = true;
                 }
             }
 
@@ -362,6 +381,7 @@ namespace MIST
             {
                 dx = 1;
                 dy = -1;
+                
                 processed = true;
             }
             else
@@ -450,9 +470,11 @@ namespace MIST
                     // if we are asking for a direction
                     if (UI.state == "askdirection")
                     {
-
-                        UI.ReciveDirection(dx, dy);
-                        System.Console.WriteLine("Direction was: " + UI.LastDirection);
+                        UI.ReciveDirection(dx, dy, player);
+                    }
+                    else if (UI.state == "inventory")
+                    {
+                        UI.Draw(player);
                     }
                 }
             }
@@ -473,7 +495,13 @@ namespace MIST
 
         public bool IsInFov(int x, int y)
         {
-            return _fov.BooleanResultView[x, y];
+            // if in bounds of the map
+            if (x > 0 && x < _tiles.Width && y > 0 && y < _tiles.Height)
+            {
+                return _fov.BooleanResultView[x, y];
+            }
+
+            return false;
         }
 
         public override bool ProcessMouse(MouseScreenObjectState state)

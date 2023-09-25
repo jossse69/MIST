@@ -49,6 +49,7 @@ internal class GameObject
 
     public void Draw()
     {
+        if(Position == new Point(-1,-1)) return;
         Appearance.CopyAppearanceTo( hostingSurface.Surface[Position]);
         hostingSurface.IsDirty = true;
     }
