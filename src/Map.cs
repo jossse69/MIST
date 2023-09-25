@@ -183,11 +183,11 @@ namespace MIST
                         // 20% to be an smlie, alse its a spider
                         if (random.Next(20) == 0)
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 3, 1, ui, monsterType.slime), new Info("Slime", "a mass of living gelatic green goo."), new AI.MonsterAI(), ui);
+                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 3, 1, ui, monsterType.slime), new Info("Slime", "a mass of living gelatic green goo."), new AI.MonsterAI(135), ui);
                         }
                         else
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1, ui, monsterType.insect), new Info("Spider", "a oddly big arachnid. spooky!"), new AI.MonsterAI(), ui);
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1, ui, monsterType.insect), new Info("Spider", "a oddly big arachnid. spooky!"), new AI.MonsterAI(84), ui);
                         }
                         // add it to the list
                         map._objects.Add(monster);
@@ -298,7 +298,6 @@ namespace MIST
             var processed = false;
             var player = ScreenContainer.Instance.Player;
             var UI = ScreenContainer.Instance.UI;
-
             // grab key
             if (keyboard.IsKeyPressed(Keys.G)){
                 UI.inaction = "pickup";
@@ -332,6 +331,25 @@ namespace MIST
                     UI.state = "none";
                     UI.ingame = true;
                     processed = true;
+                }
+            }
+
+                                    // move arrow of selecteditemid
+            if(keyboard.IsKeyPressed(Keys.Up))
+            {
+                if (UI.inaction == "inventory")
+                {
+                    UI.selecteditemid = Math.Max(UI.selecteditemid - 1, 0);
+                    UI.Draw(player);
+                }
+            }
+
+            if( keyboard.IsKeyPressed(Keys.Down))
+            {
+                if (UI.inaction == "inventory")
+                {
+                    UI.selecteditemid = Math.Min(UI.selecteditemid + 1, UI.maxiventoryroom - 1);
+                    UI.Draw(player);
                 }
             }
 
@@ -398,6 +416,21 @@ namespace MIST
                     
                     if (player.Fighter.IsDead) return false;
 
+                    // Do AI turn
+                    foreach (var obj in _objects)
+                    {
+                        if (obj.AI == null) continue;
+
+                        obj.AI.Energy += 100;
+                        obj.AI.UpdateEnergy();
+
+                        while (obj.AI.canspendenergy)
+                        {
+                            obj.AI.AITurn(obj, this, _objects, player); 
+                            obj.AI.UpdateEnergy();
+                        }
+                    }
+
                     
                         player.MoveAndAttack(dx, dy, this, _objects);
 
@@ -447,9 +480,6 @@ namespace MIST
                             var obj = drawList[index];
                             if (obj == null || obj.AI == null) continue;
 
-                            // Do AI turn
-                            obj.AI.AITurn(drawList[index], this, _objects, player);
-
                             
 
                             // if not in FOV, don't draw
@@ -472,10 +502,8 @@ namespace MIST
                     {
                         UI.ReciveDirection(dx, dy, player);
                     }
-                    else if (UI.state == "inventory")
-                    {
-                        UI.Draw(player);
-                    }
+
+                
                 }
             }
             

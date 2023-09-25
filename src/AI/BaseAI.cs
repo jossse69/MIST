@@ -10,18 +10,30 @@ namespace MIST.AI
     {
         public Point Target { get; private set; } = new Point(-1, -1);
 
- 
+        public int Energy { get; set; } = 10;
+
+        public int movecost { get; set; }
+
+        public bool canspendenergy { get; set; } = true;
+
+        public MonsterAI(int Movecost) {
+            movecost = Movecost;
+        }
 
         public void AITurn(GameObject go, Map map, List<GameObject> objects, GameObject player) 
         {
             var rng = new Random();
             var WANDER_RANGE = 6;
 
+
             // if tis dead, do nothing
             if (go == null || go.Fighter == null || go.Fighter.IsDead)
             {
+                Energy = 0;
+                UpdateEnergy();
                 return;
             }
+
 
             // player alive, and monster is in fov
             if (!player.Fighter.IsDead)
@@ -53,8 +65,9 @@ namespace MIST.AI
             }
 
             // move to target if its set
-            if (Target != new Point(-1, -1))
+            if (Target != new Point(-1, -1) && Energy > movecost)
             {
+
                     var x = 0;
                     var y = 0;
                     if (Target.X > go.Position.X)
@@ -84,10 +97,27 @@ namespace MIST.AI
                     if (go.Position == Target)
                     {
                         Target = new Point(-1, -1);
-                    }else
+                    }
+                    else
                     {
                         go.MoveAndAttack(x,y, map, objects);
                     }
+                    Energy -= movecost;
+                    UpdateEnergy();
+            }
+
+        }
+
+        public void UpdateEnergy()
+        {
+           // check all energy cost to see if we can spend energy
+            if (Energy > movecost)
+            {
+                canspendenergy = true;
+            }
+            else
+            {
+                canspendenergy = false;
                 
             }
        

@@ -22,6 +22,9 @@ namespace MIST
         public string inaction = "none";
 
         public List<Item> playerinventory = new List<Item>();
+        public int selecteditemid = 0;
+
+        public int maxiventoryroom = 10;
         public UI(ScreenContainer Display)
         {
             display = Display;
@@ -35,7 +38,6 @@ namespace MIST
             var logheight = display.Height;
             var logwidth = 79;
             var surface = display.Map;
-            var maxiventoryroom = 10;
 
             // draw the background
             for (var i = 0; i < width; i++)
@@ -89,6 +91,9 @@ namespace MIST
                 {
                     surface.Print(13, j + 13, "-", Color.DarkGray);
                 }
+
+                // add the arrow that is pointing to the selected item
+                surface.Print(11, selecteditemid + 13, ">", Color.White);
 
                 // if inventory is empty
                 if (playerinventory.Count > 0)
