@@ -4,6 +4,8 @@ using SadRogue.Primitives.GridViews;
 using GoRogue.FOV;
 using SadConsole.Input;
 using SadConsole.Effects;
+using GoRogue;
+using MIST.items;
 
 namespace MIST
 {
@@ -26,7 +28,7 @@ namespace MIST
         private Point PreviousMouseScreenPosition;
         private List<GameObject> _objects;
         private int _moveTimer = 0;
-        public List<items.Item> items;
+        public static List<Item> items = new List<Item>();
 
         /// <summary>
         ///  a 2d array of TileTypes for maps
@@ -40,6 +42,11 @@ namespace MIST
             _objects = objects;
         }
 
+
+        public void additem(items.Item item)
+        {
+            items.Add(item);
+        }
 
         public IFOV GetFOV()
         {
@@ -56,10 +63,10 @@ namespace MIST
         /// <param name="width">the width of the map</param>
         /// <param name="height">the height of the map</param>
         /// </summary>
-        public static Map GenerateMap(int width, int height, List<GameObject> objects, UI ui, List<items.Item> items)
+        public static Map GenerateMap(int width, int height, List<GameObject> objects, UI ui, List<items.Item> Items)
         {
             var map = new Map(width, height, objects);
-            map.items = items;
+            items = Items;
 
             // set all tiles in the map to be walls
             for (int x = 0; x < width; x++)
@@ -327,20 +334,30 @@ namespace MIST
                 }
                 else if (UI.inaction == "inventory")
                 {
+                    // theres is a popup in the ui, close it instead
+                    if( UI.activeListpopup != null)
+                    {
+                        UI.activeListpopup = null;
+                        UI.Draw(player);
+                    }
+                    else
+                    {
                     UI.inaction = "none";
                     UI.state = "none";
                     UI.ingame = true;
+                    }
                     processed = true;
                 }
             }
 
-                                    // move arrow of selecteditemid
+            // move arrow of selecteditemid
             if(keyboard.IsKeyPressed(Keys.Up))
             {
                 if (UI.inaction == "inventory")
                 {
-                    UI.selecteditemid = Math.Max(UI.selecteditemid - 1, 0);
+                    UI.moveitemcursor(-1);
                     UI.Draw(player);
+                    
                 }
             }
 
@@ -348,8 +365,66 @@ namespace MIST
             {
                 if (UI.inaction == "inventory")
                 {
-                    UI.selecteditemid = Math.Min(UI.selecteditemid + 1, UI.maxiventoryroom - 1);
+                    UI.moveitemcursor(1);
                     UI.Draw(player);
+                }
+            }
+
+            // enter for selected item
+            if (keyboard.IsKeyPressed(Keys.Enter))
+            {
+                if (UI.inaction == "inventory")
+                {
+                    // there is a popup in the ui, close it instead
+                    if (UI.activeListpopup != null)
+                    {
+
+                        // each case of what action to do
+                        if (UI.activeListpopup.options[UI.activeListpopup.selecteditemid] == "drop")
+                        {
+                            // drop the item
+                            UI.ingame = true;
+                            UI.state = "none";
+                            UI.inaction = "none";
+                            var item = UI.playerinventory[UI.selecteditemid];
+                            UI.SendMessage("You drop '" + item.Object?.Info.name + "' to the ground.");
+                            UI.playerinventory.Remove(item);
+                            items.Add(item);
+                            item.Object.MoveTo(new Point(player.Position.X, player.Position.Y));
+                        }
+                        else if (UI.activeListpopup.options[UI.activeListpopup.selecteditemid] == "look")
+                        {
+                            UI.ingame = true;
+                            UI.state = "none";
+                            UI.inaction = "none";
+                            var item = UI.playerinventory[UI.selecteditemid];
+                            UI.SendMessage("You analyze '" + item.Object?.Info.name + "'.");
+                            UI.SendMessage(item.Object.Info.description);
+                        } else if (UI.activeListpopup.options[UI.activeListpopup.selecteditemid] == "use")
+                        {
+                            UI.ingame = true;
+                            UI.state = "none";
+                            UI.inaction = "none";
+                            var item = UI.playerinventory[UI.selecteditemid];
+                            UI.SendMessage("You use '" + item.Object?.Info.name + "'.");
+                            item.Use();
+                        } else if (UI.activeListpopup.options[UI.activeListpopup.selecteditemid] == "equip")
+                        {
+                            UI.ingame = true;
+                            UI.state = "none";
+                            UI.inaction = "none";
+                            var item = UI.playerinventory[UI.selecteditemid];
+                            UI.SendMessage("You equip '" + item.Object?.Info.name + "'.");
+                            UI.handitem = item;
+                        }
+                        UI.activeListpopup = null;
+                        processed = true;
+                    }
+                    else
+                    {
+                    UI.openitempopup(UI.selecteditemid);
+                    UI.Draw(player);
+                    }
                 }
             }
 
@@ -449,18 +524,22 @@ namespace MIST
                                 }
                             }
 
-                        // draw item on floor
-                        foreach (var item in items)
+                        if (items != null)
                         {
-                            // dont cotinue if it doesn't exist
-                            if (item.Object == null) continue;
+                            // draw item on floor
+                            foreach (var item in items)
+                            {
+                                // dont cotinue if it doesn't exist
+                                if (item.Object == null) continue;
 
-                            // if not in FOV, don't draw
-                            if (IsInFov((int)item.Object?.Position.X, (int)(item.Object?.Position.Y)) == false) continue;
+                                // if not in FOV, don't draw
+                                if (IsInFov((int)item.Object?.Position.X, (int)(item.Object?.Position.Y)) == false) continue;
 
-                            item.Object?.Draw();
-                        }
-                            
+                                // if there is no object, don't draw
+                                if (item.Object == null) continue;
+                                item.Object?.Draw();
+                            }
+                        } 
 
                         // make list of objects to draw
                         var drawList = _objects.ToList();

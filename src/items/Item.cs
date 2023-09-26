@@ -8,12 +8,16 @@ namespace MIST.items
     {
         public ItemType type;
 
+        public Info info;
+
+        public UI UI;
         private static ColoredGlyph itemappearance = new ColoredGlyph(Color.Orange, Color.Black, '*');
 
         public GameObject? Object { get; set; }
-        public Item(Info info, UI ui, ItemType Type, List<Item> items)
+        public Item(Info Info, ItemType Type, UI ui, IScreenSurface map, Point position)
         {
             type = Type;
+            info = Info;
 
             if (type == ItemType.Consumable)
             {
@@ -32,15 +36,15 @@ namespace MIST.items
                 itemappearance = new ColoredGlyph(Color.Orange, Color.Black, '&');
             }
 
-            items.Add(this);
+            var item = new GameObject(itemappearance, position, map, null, info, null, ui);
+            Object = item;
+
         }
 
-        public void SpawnInMap(Map map, UI ui, Point position)
+        public virtual void Use()
         {
-            var item = new GameObject(itemappearance, position, map, null, new Info("Test Item", "This is a test item."), null, ui);
-            Object = item;
-            
-            
+            throw new NotImplementedException("You broke space-time by eating this loaf of bread!");
         }
+
     }
 }

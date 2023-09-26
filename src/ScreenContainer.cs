@@ -20,6 +20,8 @@ namespace MIST
 
         public UI UI { get; set; }
 
+        public SadConsole.UI.ControlHost controls { get; set; } = new SadConsole.UI.ControlHost();
+
         public ScreenContainer()
         {
             Instance = this;
@@ -28,14 +30,9 @@ namespace MIST
             Objects = new List<GameObject>();
             Random = new Random();
             UI = new UI(this);
-            Items = new List<items.Item>();
-            // generate the map
+            Items = new List<Item>();  
             Map = Map.GenerateMap(Width, Height, Objects, UI, Items);
             Map.IsFocused = true;
-            // add a test item
-            var item = new Item(new Info("Test Item", "This is a test item."), UI, ItemType.Book, Map.items);
-            // spawn the item in the map
-            item.SpawnInMap(Map, UI, Map.start);
 
             // add the player
             Player = new GameObject(new ColoredGlyph(Color.White, Color.Black, '@'), Map.start, Map, new Fighter(30, 30, 3, 3, UI, monsterType.player), new Info("Player", "It's you!"), null, UI);
@@ -43,10 +40,10 @@ namespace MIST
             Map.UpdateFOV(Player.Position.X, Player.Position.Y, 5);
             Map.Draw();
             Player.Draw();
-            UI.SendMessage("Welcome! this is a test message.");
-
            
-
+            UI.playerinventory.Add(new Item(new Info("kitchen knife", "a kitchen knife. usable."), ItemType.Mellee, UI, Map, new Point(-1, -1)));
+            UI.playerinventory.Add(new Item(new Info("bread", "a loaf of bread, that's all."), ItemType.Consumable, UI, Map, new Point(-1, -1)));
+            UI.SendMessage("Welcome! this is a test message.");
             UI.Draw(Player);
 
             Children.Add(Map);

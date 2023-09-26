@@ -1,6 +1,7 @@
 using SadRogue.Primitives;
 using SadConsole;
 using MIST.items;
+using MIST.popups;
 namespace MIST
 {
     public class UI
@@ -17,18 +18,23 @@ namespace MIST
         public string inaction = "none";
 
         public List<Item> playerinventory = new List<Item>();
+
+        public List<Item> equipment = new List<Item>();
         public int selecteditemid = 0;
 
-        public int equippeditemid = 0;
+        public Item? handitem = null;
 
         public int maxiventoryroom = 10;
 
-        public popup activepopup;
+        public popups.SelectListPopup? activeListpopup = null;
         public UI(ScreenContainer Display)
         {
             display = Display;
             Messages = new List<string>();
+            playerinventory = new List<Item>();
         }
+
+
 
         public void Draw(GameObject player)
         {
@@ -62,7 +68,10 @@ namespace MIST
             surface.DrawLine(new Point(0, height), new Point(logwidth, height), 196, Color.DarkGray,  Color.Black);
             surface.SetCellAppearance(logwidth, height, new ColoredGlyph(Color.DarkGray, Color.Black, 180));
             surface.Print(0, 0, "HP: " + player.Fighter.HP + " / " + player.Fighter.maxHP);
-
+            if (handitem != null)
+            {
+            surface.Print(16, 0, "Holding: " + handitem.Object?.Info.name);
+            }
             // draw the messages of the message bus
             var y = 0; // start drawing messages from the second row
 
@@ -108,6 +117,12 @@ namespace MIST
                 }
 
             }
+
+            // draw the active popup
+            if (activeListpopup != null)
+            {
+                activeListpopup.draw(ScreenContainer.Instance);
+            }
         }
 
         public void SendMessage(string message)
@@ -131,13 +146,22 @@ namespace MIST
             if (inaction == "pickup")
             {
                 // loop through all items and see if we can pickup the item at the position of the direction
-                foreach (var item in display.Map.items)
+                foreach (var item in Map.items)
                 {
                     if (item.Object?.Position == new Point(player.Position.X + x, player.Position.Y + y))
                     {
+                        // if the inventory is full, return
+                        if (playerinventory.Count >= maxiventoryroom)
+                        {
+                            SendMessage("You can't carry more stuff!");
+                            Draw(player);
+                            return;
+                        }
+
+
                         SendMessage("You pick up '" + item.Object.Info.name + "'.");
                         Draw(player);
-                        item.Object.MoveTo(new Point(-1,-1));
+                        item.Object.MoveTo(new Point(-1, -1));
                         inaction = "none";
                         state = "none";
                         ingame = true;
@@ -151,7 +175,46 @@ namespace MIST
 
         public void openitempopup(int id)
         {
-            
+            // inventory is empty, return
+            if (playerinventory.Count == 0 || id >= playerinventory.Count)
+            {
+                return;
+            }
+
+            // if the item is not in the inventory, return
+            if (playerinventory[id] == null)
+            {
+                return;
+            }
+
+            var choices = new List<string>();
+            choices.Add("drop");
+            choices.Add("look");
+
+            // if the item is a  Consumable, add it to the inventory
+            if (playerinventory[id].type == ItemType.Consumable)
+            {
+                choices.Add("use");
+            }
+            else
+            {
+                choices.Add("equip");
+            }
+
+            activeListpopup = new popups.SelectListPopup("Inventory", new Rectangle(10, 10, 20, 20), choices);
+        }
+
+        public void moveitemcursor(int idx)
+        {
+            // if theres is a List popup, move its cursor
+            if (activeListpopup != null)
+            {
+                activeListpopup.selecteditemid = Math.Clamp(idx + activeListpopup.selecteditemid, 0, activeListpopup.options.Count - 1);
+            }
+            else if (inaction == "inventory")
+            {
+                selecteditemid = Math.Clamp(idx + selecteditemid, 0, maxiventoryroom - 1);
+            }
         }
     }
 
