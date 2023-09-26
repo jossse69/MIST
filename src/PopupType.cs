@@ -3,8 +3,8 @@ using SadConsole;
 
 namespace MIST
 {
-    public interface popupType
+    public enum popupType
     {
- 
+        choicelist
     }
 }
