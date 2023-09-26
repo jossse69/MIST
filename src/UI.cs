@@ -199,7 +199,6 @@ namespace MIST
                             {
                                 SendMessage("'" + item.Object?.Info.name +"'");
                                 playerinventory.Add(item);
-                                chest.open = true;
                                 break;
                             }
                         }
@@ -207,7 +206,8 @@ namespace MIST
                         {
                             SendMessage("oops... nothing here...");
                         }
-
+                        chest.open = true;
+                        chest.Appearance = new ColoredGlyph(Color.SaddleBrown, Color.Black, 251);
                         inaction = "none";
                         state = "none";
                         ingame = true;

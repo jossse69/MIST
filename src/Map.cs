@@ -167,10 +167,11 @@ namespace MIST
                 {
                     map.CreateMonster(map, room, ui);
 
-                    // small change to swant a chest with loot
+                    // small chance to swant a chest with loot
                     if (random.Next(2) == 0)
                     {
-                        var chest = new Chest(new Point(room.X + room.Width / 2, room.Y + room.Height / 2), map, new Info("Chest", "A brown wooden chest, has loot!"), ScreenContainer.Instance.UI, map);
+                        var chest = new Chest(new Point(room.X + room.Width / 2, room.Y + room.Height / 2), map, new Info("Chest", "A brown wooden chest, has loot!"), ui);
+                        chest.loot = Chest.GenerateLoot(map);
                         chests.Add(chest);
                     }
                 }

@@ -7,15 +7,17 @@ namespace MIST;
 
 public class Chest : GameObject
 {
+    private static UI ui;
     public List<Item> loot= new List<Item>();
 
     public bool open = false;
-    public Chest(Point position, IScreenSurface surface, Info info, UI ui, Map map) : base(new ColoredGlyph(Color.Brown, Color.Black, 234), position, surface, null, info, null, ui)
+    public Chest(Point position, IScreenSurface surface, Info info, UI UI) : base(new ColoredGlyph(Color.Brown, Color.Black, 234), position, surface, null, info, null, ui)
     {
-        loot = GenerateLoot(ui, map);
+        loot = new List<Item>();
+        ui = UI;
     }
 
-    public List<Item> GenerateLoot(UI ui, Map map)
+    public static List<Item> GenerateLoot(Map map)
     {
         // fill with 3-4 Consumables, 1-2 Ranged, 1-2 Melee, 1-2 Books
         var rng = new Random();

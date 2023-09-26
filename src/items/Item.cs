@@ -9,7 +9,6 @@ namespace MIST.items
         public ItemType type;
 
         public Info info;
-
         public UI UI;
         private static ColoredGlyph itemappearance = new ColoredGlyph(Color.Orange, Color.Black, '*');
 
@@ -18,6 +17,7 @@ namespace MIST.items
         {
             type = Type;
             info = Info;
+            UI = ui;
 
             if (type == ItemType.Consumable)
             {
