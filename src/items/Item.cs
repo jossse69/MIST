@@ -4,7 +4,7 @@ using SadRogue.Primitives;
 
 namespace MIST.items
 {
-    internal class Item 
+    public class Item 
     {
         public ItemType type;
 

@@ -5,7 +5,7 @@ using SadConsole;
 using SadRogue.Primitives;
 
 
-internal class GameObject
+public  class GameObject
 {
     public Point Position { get; private set; }
 
@@ -17,11 +17,11 @@ internal class GameObject
 
     public Info Info { get; set; }
 
-    public AI.MonsterAI? AI { get; set; }
+    public AI.BasicMonsterAI? AI { get; set; }
     private readonly ColoredGlyph DEAD = new ColoredGlyph(Color.Crimson, Color.Black, '%');
 
     private UI UI;
-    public GameObject(ColoredGlyph appearance, Point position, IScreenSurface surface, Fighter? fighter, Info info,  AI.MonsterAI? monsterAI, UI ui)
+    public GameObject(ColoredGlyph appearance, Point position, IScreenSurface surface, Fighter? fighter, Info info,  AI.BasicMonsterAI? monsterAI, UI ui)
     {
         Appearance = appearance;
         Position = position;

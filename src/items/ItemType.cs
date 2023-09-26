@@ -1,6 +1,6 @@
 namespace MIST.items
 {
-    internal enum ItemType
+    public enum ItemType
     {
         Book,
         Mellee,

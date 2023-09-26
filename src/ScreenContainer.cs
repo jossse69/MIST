@@ -4,7 +4,7 @@ using SadRogue.Primitives;
 
 namespace MIST
 {
-    internal class ScreenContainer : ScreenObject
+    public class ScreenContainer : ScreenObject
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public static ScreenContainer Instance { get; private set; }

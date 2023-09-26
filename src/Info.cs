@@ -1,6 +1,6 @@
 namespace MIST
 {
-    internal class Info
+    public class Info
     {
         public string name;
 

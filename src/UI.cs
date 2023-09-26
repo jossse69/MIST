@@ -1,14 +1,9 @@
 using SadRogue.Primitives;
 using SadConsole;
-using SadRogue.Primitives.GridViews;
-using SadConsole.Input;
-using GoRogue.Messaging;
-using GoRogue;
-using SadConsole.Ansi;
 using MIST.items;
 namespace MIST
 {
-    internal class UI
+    public class UI
     {
         public ScreenContainer display { get; set; }
 
@@ -24,7 +19,11 @@ namespace MIST
         public List<Item> playerinventory = new List<Item>();
         public int selecteditemid = 0;
 
+        public int equippeditemid = 0;
+
         public int maxiventoryroom = 10;
+
+        public popup activepopup;
         public UI(ScreenContainer Display)
         {
             display = Display;
@@ -149,5 +148,12 @@ namespace MIST
                 }
             }
         }
+
+        public void openitempopup(int id)
+        {
+            
+        }
     }
+
+    
 }

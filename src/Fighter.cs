@@ -1,6 +1,6 @@
 namespace MIST
 {
-    internal class Fighter
+    public class Fighter
     {
         public int maxHP;
         public int HP;

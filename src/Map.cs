@@ -7,7 +7,7 @@ using SadConsole.Effects;
 
 namespace MIST
 {
-    internal class Map : SadConsole.Console
+    public class Map : SadConsole.Console
     {
         public Tile this[Point pos] { get { return _tiles[pos]; } set { _tiles[pos] = value; } }
         public Tile this[int x, int y] { get { return this[(x, y)]; } set { this[(x, y)] = value; } }
@@ -183,11 +183,11 @@ namespace MIST
                         // 20% to be an smlie, alse its a spider
                         if (random.Next(20) == 0)
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 3, 1, ui, monsterType.slime), new Info("Slime", "a mass of living gelatic green goo."), new AI.MonsterAI(135), ui);
+                            monster = new GameObject(new ColoredGlyph(Color.LimeGreen, Color.Black, 'S'), new Point(monsterX, monsterY), map, new Fighter(15, 15, 3, 1, ui, monsterType.slime), new Info("Slime", "a mass of living gelatic green goo."), new AI.BasicMonsterAI(135), ui);
                         }
                         else
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1, ui, monsterType.insect), new Info("Spider", "a oddly big arachnid. spooky!"), new AI.MonsterAI(84), ui);
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1, ui, monsterType.insect), new Info("Spider", "a oddly big arachnid. spooky!"), new AI.BasicMonsterAI(84), ui);
                         }
                         // add it to the list
                         map._objects.Add(monster);

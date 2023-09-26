@@ -6,9 +6,9 @@ using SadRogue.Primitives.GridViews;
 
 namespace MIST.AI
 {
-    internal class MonsterAI
+    public class BasicMonsterAI: MonsterAI
     {
-        public Point Target { get; private set; } = new Point(-1, -1);
+        public Point Target { get; set; } = new Point(-1, -1);
 
         public int Energy { get; set; } = 10;
 
@@ -16,11 +16,11 @@ namespace MIST.AI
 
         public bool canspendenergy { get; set; } = true;
 
-        public MonsterAI(int Movecost) {
+        public BasicMonsterAI(int Movecost) {
             movecost = Movecost;
         }
 
-        public void AITurn(GameObject go, Map map, List<GameObject> objects, GameObject player) 
+        public override void AITurn(GameObject go, Map map, List<GameObject> objects, GameObject player) 
         {
             var rng = new Random();
             var WANDER_RANGE = 6;
@@ -108,7 +108,7 @@ namespace MIST.AI
 
         }
 
-        public void UpdateEnergy()
+        public override void UpdateEnergy()
         {
            // check all energy cost to see if we can spend energy
             if (Energy > movecost)

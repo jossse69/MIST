@@ -1,6 +1,6 @@
 ﻿namespace MIST
 {
-    internal class Tile
+    public class Tile
     {
         public TileType TileType;
         public bool Impassable;
