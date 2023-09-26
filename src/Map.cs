@@ -29,6 +29,7 @@ namespace MIST
         private List<GameObject> _objects;
         private int _moveTimer = 0;
         public static List<Item> items = new List<Item>();
+        public static List<Chest> chests = new List<Chest>();
 
         /// <summary>
         ///  a 2d array of TileTypes for maps
@@ -165,6 +166,13 @@ namespace MIST
                 if (rooms.IndexOf(room) != 0)
                 {
                     map.CreateMonster(map, room, ui);
+
+                    // small change to swant a chest with loot
+                    if (random.Next(2) == 0)
+                    {
+                        var chest = new Chest(new Point(room.X + room.Width / 2, room.Y + room.Height / 2), map, new Info("Chest", "A brown wooden chest, has loot!"), ScreenContainer.Instance.UI, map);
+                        chests.Add(chest);
+                    }
                 }
             }
 
@@ -194,7 +202,7 @@ namespace MIST
                         }
                         else
                         {
-                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(5, 5, 2, 1, ui, monsterType.insect), new Info("Spider", "a oddly big arachnid. spooky!"), new AI.BasicMonsterAI(84), ui);
+                            monster = new GameObject(new ColoredGlyph(Color.Red, Color.Black, 's'), new Point(monsterX, monsterY), map, new Fighter(10, 10, 2, 1, ui, monsterType.insect), new Info("Spider", "a oddly big arachnid. spooky!"), new AI.BasicMonsterAI(84), ui);
                         }
                         // add it to the list
                         map._objects.Add(monster);
@@ -313,6 +321,14 @@ namespace MIST
 
             };
 
+            // interact key
+            if (keyboard.IsKeyPressed(Keys.E))
+            {
+                UI.inaction = "interact";
+                UI.AskDirection();
+                UI.Draw(player);
+            };
+
             // inventory key
             if (keyboard.IsKeyPressed(Keys.I))
             {
@@ -388,6 +404,10 @@ namespace MIST
                             UI.inaction = "none";
                             var item = UI.playerinventory[UI.selecteditemid];
                             UI.SendMessage("You drop '" + item.Object?.Info.name + "' to the ground.");
+                            if (UI.handitem == item)
+                            {
+                                UI.handitem = null;
+                            }
                             UI.playerinventory.Remove(item);
                             items.Add(item);
                             item.Object.MoveTo(new Point(player.Position.X, player.Position.Y));
@@ -416,6 +436,15 @@ namespace MIST
                             var item = UI.playerinventory[UI.selecteditemid];
                             UI.SendMessage("You equip '" + item.Object?.Info.name + "'.");
                             UI.handitem = item;
+                        }
+                        else if (UI.activeListpopup.options[UI.activeListpopup.selecteditemid] == "unequip")
+                        {
+                            UI.ingame = true;
+                            UI.state = "none";
+                            UI.inaction = "none";
+                            var item = UI.playerinventory[UI.selecteditemid];
+                            UI.SendMessage("You put away '" + item.Object?.Info.name + "'.");
+                            UI.handitem = null;
                         }
                         UI.activeListpopup = null;
                         processed = true;
@@ -544,6 +573,7 @@ namespace MIST
                         // make list of objects to draw
                         var drawList = _objects.ToList();
 
+
                         // sort so that dead objects are drawn last and only when visible on the map
                         drawList = drawList
                             .Where(a => a.IsVisible(this))
@@ -568,6 +598,15 @@ namespace MIST
                         }
                         // draw player
                         player.Draw();
+
+                        // draw chests
+                        foreach (var chest in chests)
+                        {
+                            // if not in FOV, don't draw
+                            if (chest.IsVisible(this) == false) continue;
+
+                            chest.Draw();
+                        }
 
                         // draw UI
                         UI.Draw(player);                    
@@ -628,6 +667,9 @@ namespace MIST
 
             if (state.Mouse.LeftClicked)
             {
+                
+                var ui = ScreenContainer.Instance.UI;
+                var player = ScreenContainer.Instance.Player;
                 // check if the mouse is in the FOV
                 if (IsInFov(mouseX, mouseY))
                 {
@@ -637,8 +679,6 @@ namespace MIST
                         if (mouseX == obj.Position.X && mouseY == obj.Position.Y)
                         {
                             // display info on UI
-                            var ui = ScreenContainer.Instance.UI;
-                            var player = ScreenContainer.Instance.Player;
                             ui.SendMessage("You analyse "+ obj.Info.name + ".");
                             ui.SendMessage(obj.Info.description);
                             ui.Draw(player);
@@ -646,6 +686,20 @@ namespace MIST
                             break;
                         }
                     }
+
+                    // check chests also
+                    foreach (var chest in chests)
+                    {
+                        if (mouseX == chest.Position.X && mouseY == chest.Position.Y)
+                        {
+                            ui.SendMessage("You analyse "+ chest.Info.name + ".");
+                            ui.SendMessage(chest.Info.description);
+                            processed = true;
+                            break;
+                        }
+                    }
+
+
                 }
 
             }

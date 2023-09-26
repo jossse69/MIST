@@ -5,7 +5,7 @@ using SadConsole;
 using SadRogue.Primitives;
 
 
-public  class GameObject
+public class GameObject
 {
     public Point Position { get; private set; }
 
@@ -97,7 +97,22 @@ public  class GameObject
                 if (obj.Fighter.type != Fighter.type)
                 {
                     UI.SendMessage(Info.name + " attacks!");
-                    obj.Fighter?.takeDamage(2, Fighter.power);
+                    // see if its the player and what item he is holding
+                    if (obj.Fighter.type !=  monsterType.player && Fighter.type == monsterType.player)
+                    {
+                        var item = UI.handitem;
+                        var dmg = 2;
+                        if (item != null)
+                        {
+                            dmg = item.weponattack();
+                        }
+
+                        obj.Fighter?.takeDamage(dmg, Fighter.power);
+                    }
+                    else{
+                        obj.Fighter?.takeDamage(2, Fighter.power);
+                    }
+                    
                 }
                 
                 blockedbyobject = true;
@@ -136,11 +151,22 @@ public  class GameObject
                 {
                     return !obj.Fighter.IsDead;
                 }
-                else{
+                else
+                {
                     return true;
                 }
             }
         }
+
+        // check for chests
+        foreach (var chest in Map.chests)
+        {
+            if (chest.Position == new Point(x, y))
+            {
+                return true;
+            }
+        }
+
         return false;
     }
 

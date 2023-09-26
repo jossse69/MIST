@@ -42,6 +42,7 @@ namespace MIST
                 {
                     dmg *= 2;
                     ui.SendMessage("Critical Hit!");
+
                     HP -= dmg;
                 }
                 else

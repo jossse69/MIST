@@ -110,7 +110,15 @@ namespace MIST
                     {
                         if (item != null)
                         {
-                            surface.Print(13, i + 13, item.Object?.Info.name, Color.White);
+                            // if item is the equipped item
+                            if (handitem == item)
+                            {
+                                surface.Print(13, i + 13, item.Object?.Info.name, Color.Gold);
+                            }
+                            else
+                            {
+                                surface.Print(13, i + 13, item.Object?.Info.name, Color.White);
+                            }
                             i++;
                         }
                     }
@@ -171,6 +179,43 @@ namespace MIST
                     }
                 }
             }
+            else if (inaction == "interact")
+            {
+                // loop through all chests and see if we can open it
+                foreach (var chest in Map.chests)
+                {
+                    
+
+                    if (chest.Position == new Point(player.Position.X + x, player.Position.Y + y))
+                    {
+                        // check if the chest is open
+                        if (chest.open == false)
+                        {
+                        SendMessage("You open the chest. it contains:");
+                        // if has loot
+                        if (chest.loot.Count > 0)
+                        {
+                            foreach (var item in chest.loot)
+                            {
+                                SendMessage("'" + item.Object?.Info.name +"'");
+                                playerinventory.Add(item);
+                                chest.open = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            SendMessage("oops... nothing here...");
+                        }
+
+                        inaction = "none";
+                        state = "none";
+                        ingame = true;
+                        Draw(player);
+                        }
+                    }
+                }
+            }
         }
 
         public void openitempopup(int id)
@@ -198,7 +243,14 @@ namespace MIST
             }
             else
             {
-                choices.Add("equip");
+                // if this item is equipped, add an option to unequip
+                if (handitem == playerinventory[id])
+                {
+                    choices.Add("unequip");
+                }
+                else{
+                    choices.Add("equip");
+                }
             }
 
             activeListpopup = new popups.SelectListPopup("Inventory", new Rectangle(10, 10, 20, 20), choices);

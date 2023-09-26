@@ -43,7 +43,15 @@ namespace MIST.items
 
         public virtual void Use()
         {
-            throw new NotImplementedException("You broke space-time by eating this loaf of bread!");
+            UI.SendMessage(info.name + " used!");
+            // heal player
+            var player = ScreenContainer.Instance.Player;
+            player.Fighter.HP = Math.Min(player.Fighter.maxHP, player.Fighter.HP + 10);
+        }
+
+        public virtual int weponattack(){
+
+            return 4;
         }
 
     }

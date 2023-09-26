@@ -27,7 +27,7 @@ namespace MIST.AI
 
 
             // if tis dead, do nothing
-            if (go == null || go.Fighter == null || go.Fighter.IsDead)
+            if (go.Fighter.IsDead)
             {
                 Energy = 0;
                 UpdateEnergy();
@@ -39,31 +39,39 @@ namespace MIST.AI
             if (!player.Fighter.IsDead)
             {
                 // if its in fov, move to it
-                if (map.IsInFov(player.Position.X, player.Position.Y))
+                if (go.IsVisible(map))
                 {
                     Target = player.Position;
                 }
-
-            } else if (Target == new Point(-1, -1))
-            {
-                
-                while (true) {
-                    var x = go.Position.X + rng.Next(-WANDER_RANGE, WANDER_RANGE);
-                    var y = go.Position.Y + rng.Next(-WANDER_RANGE, WANDER_RANGE);
-
-                    // check if the target is in the map
-                    if (x >= 0 && x < map.Width && y >= 0 && y < map.Height)
+                else if (Target == new Point(-1, -1))
                     {
-                        // if its not in a wall, move to it
-                        if (!go.IsBlocked(x, y, map, objects))
-                        {
-                            Target = new Point(x, y);
-                            break;
+                        var trys = 0;
+                        while (trys != 3) {
+                            var x = go.Position.X + rng.Next(-WANDER_RANGE, WANDER_RANGE);
+                            var y = go.Position.Y + rng.Next(-WANDER_RANGE, WANDER_RANGE);
+
+                            // check if the target is in the map
+                            if (x >= 0 && x < map.Width && y >= 0 && y < map.Height)
+                            {
+                                // if its not in a wall, move to it
+                                if (!go.IsBlocked(x, y, map, objects))
+                                {
+                                    Target = new Point(x, y);
+                                    
+                                    break;
+                                }
+                            
+                                
+                            }
+                        
+                        trys++;
                         }
                     }
-                }
+                
+            } 
+            else{
+                return;
             }
-
             // move to target if its set
             if (Target != new Point(-1, -1) && Energy > movecost)
             {
