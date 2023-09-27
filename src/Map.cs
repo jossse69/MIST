@@ -28,7 +28,7 @@ namespace MIST
         private Point PreviousMouseScreenPosition;
         private List<GameObject> _objects;
         private int _moveTimer = 0;
-        public static List<Item> items = new List<Item>();
+        public static List<IItem> items = new List<IItem>();
         public static List<Chest> chests = new List<Chest>();
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace MIST
         }
 
 
-        public void additem(items.Item item)
+        public void additem(items.IItem item)
         {
             items.Add(item);
         }
@@ -64,7 +64,7 @@ namespace MIST
         /// <param name="width">the width of the map</param>
         /// <param name="height">the height of the map</param>
         /// </summary>
-        public static Map GenerateMap(int width, int height, List<GameObject> objects, UI ui, List<items.Item> Items)
+        public static Map GenerateMap(int width, int height, List<GameObject> objects, UI ui, List<items.IItem> Items)
         {
             var map = new Map(width, height, objects);
             items = Items;

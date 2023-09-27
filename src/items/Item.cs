@@ -4,7 +4,7 @@ using SadRogue.Primitives;
 
 namespace MIST.items
 {
-    public class Item 
+    public class IItem 
     {
         public ItemType type;
 
@@ -13,7 +13,7 @@ namespace MIST.items
         private static ColoredGlyph itemappearance = new ColoredGlyph(Color.Orange, Color.Black, '*');
 
         public GameObject? Object { get; set; }
-        public Item(Info Info, ItemType Type, UI ui, IScreenSurface map, Point position)
+        public IItem(Info Info, ItemType Type, UI ui, IScreenSurface map, Point position)
         {
             type = Type;
             info = Info;

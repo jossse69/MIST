@@ -17,12 +17,12 @@ namespace MIST
 
         public string inaction = "none";
 
-        public List<Item> playerinventory = new List<Item>();
+        public List<IItem> playerinventory = new List<IItem>();
 
-        public List<Item> equipment = new List<Item>();
+        public List<IItem> equipment = new List<IItem>();
         public int selecteditemid = 0;
 
-        public Item? handitem = null;
+        public IItem? handitem = null;
 
         public int maxiventoryroom = 10;
 
@@ -31,7 +31,7 @@ namespace MIST
         {
             display = Display;
             Messages = new List<string>();
-            playerinventory = new List<Item>();
+            playerinventory = new List<IItem>();
         }
 
 

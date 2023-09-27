@@ -16,7 +16,7 @@ namespace MIST
         public List<GameObject> Objects;
         public readonly Random Random;
 
-        public List<items.Item> Items;
+        public List<items.IItem> Items;
 
         public UI UI { get; set; }
 
@@ -30,7 +30,7 @@ namespace MIST
             Objects = new List<GameObject>();
             Random = new Random();
             UI = new UI(this);
-            Items = new List<Item>();  
+            Items = new List<IItem>();  
             Map = Map.GenerateMap(Width, Height, Objects, UI, Items);
             Map.IsFocused = true;
 
@@ -41,8 +41,8 @@ namespace MIST
             Map.Draw();
             Player.Draw();
            
-            UI.playerinventory.Add(new Item(new Info("kitchen knife", "a kitchen knife. usable."), ItemType.Mellee, UI, Map, new Point(-1, -1)));
-            UI.playerinventory.Add(new Item(new Info("bread", "a loaf of bread, that's all."), ItemType.Consumable, UI, Map, new Point(-1, -1)));
+            UI.playerinventory.Add(new IItem(new Info("kitchen knife", "a kitchen knife. usable."), ItemType.Mellee, UI, Map, new Point(-1, -1)));
+            UI.playerinventory.Add(new IItem(new Info("bread", "a loaf of bread, that's all."), ItemType.Consumable, UI, Map, new Point(-1, -1)));
             UI.SendMessage("Welcome! this is a test message.");
             UI.Draw(Player);
 
