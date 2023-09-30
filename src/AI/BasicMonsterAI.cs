@@ -14,7 +14,6 @@ namespace MIST.AI
 
         public int movecost { get; set; }
 
-        public bool canspendenergy { get; set; } = true;
 
         public BasicMonsterAI(int Movecost) {
             movecost = Movecost;

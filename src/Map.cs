@@ -532,17 +532,18 @@ namespace MIST
                             // check if player will run into a monster
                             if (dx == obj.Position.X - player.Position.X && dy == obj.Position.Y - player.Position.Y)
                             {
-                                obj.AI.Energy += (int)UI.handitem.GetType().GetField("actioncost").GetValue(UI.handitem);
+                                int actionCostValue = (int)UI.handitem.GetType().GetProperty("actioncost").GetValue(UI.handitem);
+                                obj.AI.Energy += actionCostValue;
+
                             } 
                         }
-                        else
-                        {
-                            obj.AI.Energy += 100;
-                        }
+                        
+
+                        obj.AI.Energy += 100;
                         
                         obj.AI.UpdateEnergy();
 
-                        while (obj.AI.canspendenergy)
+                        while (obj.AI.Canspendenergy)
                         {
                             obj.AI.AITurn(obj, this, _objects, player); 
                             obj.AI.UpdateEnergy();

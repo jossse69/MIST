@@ -57,7 +57,7 @@ public class Chest : GameObject
                 // 20% chance of a dagger, else its chance of a sword.
                 if (rng .Next(100) <= 20)
                 {
-                    //loot.Add(new IItem(new Info("dagger", "a dagger. really sharp."), ItemType.Mellee, ui, map, new Point(-1, -1)));
+                    loot.Add(new items.Mellees.dagger(ui, map));
                 }
                 else
                 {

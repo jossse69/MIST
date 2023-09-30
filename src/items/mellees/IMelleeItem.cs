@@ -12,14 +12,14 @@ namespace MIST.items.Mellees
         int actioncost { get; }
 
         /// <summary>
-        /// retruns the DMG value of this mellee
+        /// returns the DMG value of this mellee
         /// </summary>
         /// <param name="target"> the target of the attack, useful for status effects</param>
         /// <returns>the DMG value</returns>
         public abstract int WeaponAttack(GameObject target);
 
         /// <summary>
-        /// retruns the crit DMG value of this mellee
+        /// returns the crit DMG value of this mellee
         /// </summary>
         /// <param name="target"> the target of the attack, useful for status effects</param>
         /// <returns>the crit DMG value</returns>
