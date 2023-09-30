@@ -428,7 +428,7 @@ namespace MIST
                             UI.inaction = "none";
                             var item = UI.playerinventory[UI.selecteditemid];
                             UI.SendMessage("You use '" + item.Object?.Info.name + "'.");
-                            item.Use();
+                            item.GetType().GetMethod("Use").Invoke(item, new object[] { UI, player });
                         } else if (UI.activeListpopup.options[UI.activeListpopup.selecteditemid] == "equip")
                         {
                             UI.ingame = true;

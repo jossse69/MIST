@@ -41,8 +41,8 @@ namespace MIST
             Map.Draw();
             Player.Draw();
            
-            UI.playerinventory.Add(new IItem(new Info("kitchen knife", "a kitchen knife. usable."), ItemType.Mellee, UI, Map, new Point(-1, -1)));
-            UI.playerinventory.Add(new IItem(new Info("bread", "a loaf of bread, that's all."), ItemType.Consumable, UI, Map, new Point(-1, -1)));
+            UI.playerinventory.Add(new items.Mellees.kitchenknife(UI, Instance.Map));
+            UI.playerinventory.Add(new items.consumables.bread(UI, Instance.Map));
             UI.SendMessage("Welcome! this is a test message.");
             UI.Draw(Player);
 

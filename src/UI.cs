@@ -237,7 +237,7 @@ namespace MIST
             choices.Add("look");
 
             // if the item is a  Consumable, add it to the inventory
-            if (playerinventory[id].type == ItemType.Consumable)
+            if (playerinventory[id].Type == ItemType.Consumable)
             {
                 choices.Add("use");
             }

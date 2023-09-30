@@ -4,55 +4,11 @@ using SadRogue.Primitives;
 
 namespace MIST.items
 {
-    public class IItem 
+    public interface IItem
     {
-        public ItemType type;
-
-        public Info info;
-        public UI UI;
-        private static ColoredGlyph itemappearance = new ColoredGlyph(Color.Orange, Color.Black, '*');
-
-        public GameObject? Object { get; set; }
-        public IItem(Info Info, ItemType Type, UI ui, IScreenSurface map, Point position)
-        {
-            type = Type;
-            info = Info;
-            UI = ui;
-
-            if (type == ItemType.Consumable)
-            {
-                itemappearance = new ColoredGlyph(Color.Orange, Color.Black, '*');
-            }
-            else if (type == ItemType.Mellee)
-            {
-                itemappearance = new ColoredGlyph(Color.Orange, Color.Black, '/');
-            }
-            else if (type == ItemType.Ranged)
-            {
-                itemappearance = new ColoredGlyph(Color.Orange, Color.Black, ')');
-            }
-            else if (type == ItemType.Book)
-            {
-                itemappearance = new ColoredGlyph(Color.Orange, Color.Black, '&');
-            }
-
-            var item = new GameObject(itemappearance, position, map, null, info, null, ui);
-            Object = item;
-
-        }
-
-        public virtual void Use()
-        {
-            UI.SendMessage(info.name + " used!");
-            // heal player
-            var player = ScreenContainer.Instance.Player;
-            player.Fighter.HP = Math.Min(player.Fighter.maxHP, player.Fighter.HP + 10);
-        }
-
-        public virtual int weponattack(){
-
-            return 4;
-        }
-
+        ColoredGlyph itemAppearance {get=>this.itemAppearance; set{}}
+        ItemType Type { get; }
+        Info Info { get; }
+        GameObject? Object { get; set; }
     }
 }

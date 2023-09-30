@@ -1,6 +1,7 @@
 namespace MIST;
 
 using System;
+using MIST.items.Mellees;
 using SadConsole;
 using SadRogue.Primitives;
 
@@ -102,9 +103,9 @@ public class GameObject
                     {
                         var item = UI.handitem;
                         var dmg = 2;
-                        if (item != null)
+                        if (item != null && item is IMelleeItem)
                         {
-                            dmg = item.weponattack();
+                            dmg = (int)item.GetType().GetMethod("WeaponAttack").Invoke(item, new object[] { obj });
                         }
 
                         obj.Fighter?.takeDamage(dmg, Fighter.power);

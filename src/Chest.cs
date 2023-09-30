@@ -30,10 +30,10 @@ public class Chest : GameObject
                 // 20% chance of a healing elixir, else its chance of a cooked beef.
                 if( rng.Next(100) <= 20)
                 {
-                    loot.Add(new IItem(new Info("healing elixir", "a healing elixir. smells sweetly."), ItemType.Consumable, ui, map, new Point(-1, -1)));
+                    //loot.Add(new IItem(new Info("healing elixir", "a healing elixir. smells sweetly."), ItemType.Consumable, ui, map, new Point(-1, -1)));
                 } else
                 {
-                    loot.Add(new IItem(new Info("cooked beef", "a cooked bovine beef. YUM!"), ItemType.Consumable, ui, map, new Point(-1, -1)));
+                    //loot.Add(new IItem(new Info("cooked beef", "a cooked bovine beef. YUM!"), ItemType.Consumable, ui, map, new Point(-1, -1)));
                 }
             }
         }
@@ -43,10 +43,10 @@ public class Chest : GameObject
                 // 20% chance of a crossbow, else its chance of a bow.
                 if (rng .Next(100) <= 20)
                 {
-                    loot.Add(new IItem(new Info("crossbow", "a crossbow. goes pew pew."), ItemType.Ranged, ui, map, new Point(-1, -1)));
+                    //loot.Add(new IItem(new Info("crossbow", "a crossbow. goes pew pew."), ItemType.Ranged, ui, map, new Point(-1, -1)));
                 } else
                 {
-                    loot.Add(new IItem(new Info("bow", "a bow. shoots arrows."), ItemType.Ranged, ui, map, new Point(-1, -1)));
+                    //loot.Add(new IItem(new Info("bow", "a bow. shoots arrows."), ItemType.Ranged, ui, map, new Point(-1, -1)));
                 }
             }
         }
@@ -57,11 +57,11 @@ public class Chest : GameObject
                 // 20% chance of a dagger, else its chance of a sword.
                 if (rng .Next(100) <= 20)
                 {
-                    loot.Add(new IItem(new Info("dagger", "a dagger. really sharp."), ItemType.Mellee, ui, map, new Point(-1, -1)));
+                    //loot.Add(new IItem(new Info("dagger", "a dagger. really sharp."), ItemType.Mellee, ui, map, new Point(-1, -1)));
                 }
                 else
                 {
-                    loot.Add(new IItem(new Info("sword", "a sword. a dagger, but longer."), ItemType.Mellee, ui, map, new Point(-1, -1)));
+                    //loot.Add(new IItem(new Info("sword", "a sword. a dagger, but longer."), ItemType.Mellee, ui, map, new Point(-1, -1)));
                 }
             }
         }
@@ -72,11 +72,11 @@ public class Chest : GameObject
                 // 20% chance of a copy of 'gaseous tome', else its chance of a copy of 'how to do pyromancy' book.
                 if (rng.Next(100) <= 20)
                 {
-                    loot.Add(new IItem(new Info("gaseous tome", "a tome... that stinks a lot."), ItemType.Book, ui, map, new Point(-1, -1)));
+                    //loot.Add(new IItem(new Info("gaseous tome", "a tome... that stinks a lot."), ItemType.Book, ui, map, new Point(-1, -1)));
                 }
                 else
                 {
-                    loot.Add(new IItem(new Info("how to do pyromancy", "learn pyromancy! this is fine."), ItemType.Book, ui, map, new Point(-1, -1)));
+                    //loot.Add(new IItem(new Info("how to do pyromancy", "learn pyromancy! this is fine."), ItemType.Book, ui, map, new Point(-1, -1)));
                 }
             }
         }
