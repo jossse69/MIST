@@ -11,7 +11,9 @@ namespace MIST.items.Mellees
         public Info Info => new Info("kitchen knife", "a kitchen knife. usable.");
 
         private GameObject ThisObject;
-        public GameObject? Object { get => ThisObject; set => ThisObject = value; } 
+        public GameObject? Object { get => ThisObject; set => ThisObject = value; }
+
+        public int actioncost => 100;
 
         public kitchenknife(UI ui, IScreenSurface surface)
         {
@@ -20,7 +22,7 @@ namespace MIST.items.Mellees
 
         public int CritWeaponAttack(GameObject target)
         {
-            return 3;
+            return 5;
         }
 
         public int WeaponAttack(GameObject target)

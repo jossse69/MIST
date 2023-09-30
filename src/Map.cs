@@ -526,7 +526,20 @@ namespace MIST
                     {
                         if (obj.AI == null) continue;
 
-                        obj.AI.Energy += 100;
+                        // if player is holdig a wepon, spend energy using the weapon's action 
+                        if (UI.handitem != null)
+                        {
+                            // check if player will run into a monster
+                            if (dx == obj.Position.X - player.Position.X && dy == obj.Position.Y - player.Position.Y)
+                            {
+                                obj.AI.Energy += (int)UI.handitem.GetType().GetField("actioncost").GetValue(UI.handitem);
+                            } 
+                        }
+                        else
+                        {
+                            obj.AI.Energy += 100;
+                        }
+                        
                         obj.AI.UpdateEnergy();
 
                         while (obj.AI.canspendenergy)

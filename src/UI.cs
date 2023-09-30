@@ -26,6 +26,8 @@ namespace MIST
 
         public int maxiventoryroom = 10;
 
+        public int totalactioncost = 100;
+
         public popups.SelectListPopup? activeListpopup = null;
         public UI(ScreenContainer Display)
         {

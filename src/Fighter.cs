@@ -35,21 +35,18 @@ namespace MIST
             {
                 ui.SendMessage("It's very uneffective...");
             }
+            else if (dmg > damage * 1.5)
+            {
+                ui.SendMessage("Critical Hit!");
+                HP -= dmg;
+            }  
             else
             {
-                // 25% chance for a critical hit
-                if (rng.Next(100) < 25)
-                {
-                    dmg *= 2;
-                    ui.SendMessage("Critical Hit!");
-
-                    HP -= dmg;
-                }
-                else
-                {
-                    HP -= dmg;
-                }
+            HP -= dmg;
             }
+                    
+                
+        
 
             // check if the fighter is dead
             if (HP <= 0)

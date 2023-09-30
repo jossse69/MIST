@@ -33,7 +33,7 @@ public class Chest : GameObject
                     //loot.Add(new IItem(new Info("healing elixir", "a healing elixir. smells sweetly."), ItemType.Consumable, ui, map, new Point(-1, -1)));
                 } else
                 {
-                    //loot.Add(new IItem(new Info("cooked beef", "a cooked bovine beef. YUM!"), ItemType.Consumable, ui, map, new Point(-1, -1)));
+                    loot.Add(new items.consumables.cookedbeef(ui, map));
                 }
             }
         }

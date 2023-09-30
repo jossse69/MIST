@@ -9,7 +9,7 @@ namespace MIST.items.Mellees
     /// </summary>
     public interface  IMelleeItem : IItem
     {
-        
+        int actioncost { get; }
 
         /// <summary>
         /// retruns the DMG value of this mellee
