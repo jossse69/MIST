@@ -97,7 +97,9 @@ public class GameObject
                 // if the monster is not of same type, attack
                 if (obj.Fighter.type != Fighter.type)
                 {
+                    if (IsVisible(map)){
                     UI.SendMessage(Info.name + " attacks!");
+                    }
                     // see if its the player and what item he is holding
                     if (obj.Fighter.type !=  monsterType.player && Fighter.type == monsterType.player)
                     {
@@ -108,10 +110,10 @@ public class GameObject
                             dmg = (int)item.GetType().GetMethod("WeaponAttack").Invoke(item, new object[] { obj });
                         }
 
-                        obj.Fighter?.takeDamage(dmg, Fighter.power);
+                        obj.Fighter?.takeDamage(dmg, Fighter.power, obj, map);
                     }
                     else{
-                        obj.Fighter?.takeDamage(2, Fighter.power);
+                        obj.Fighter?.takeDamage(2, Fighter.power, obj, map);
                     }
                     
                 }

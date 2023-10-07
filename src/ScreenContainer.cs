@@ -43,7 +43,11 @@ namespace MIST
            
             UI.playerinventory.Add(new items.Mellees.kitchenknife(UI, Instance.Map));
             UI.playerinventory.Add(new items.consumables.bread(UI, Instance.Map));
-            UI.SendMessage("Welcome! this is a test message.");
+            UI.SendMessage("Welcome! climb up the tower to heaven!");
+            UI.SendMessage("But watch your step for evil things!");
+            UI.SendMessage("Get powerful weapons to defeat them.");
+            UI.SendMessage("Find friends to help you.");
+            UI.SendMessage("Get out of the void! heaven is waiting.");
             UI.Draw(Player);
 
             Children.Add(Map);

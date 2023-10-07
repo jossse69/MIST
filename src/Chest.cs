@@ -23,14 +23,14 @@ public class Chest : GameObject
         var rng = new Random();
         var loot = new List<IItem>();
         var loottype = rng.Next(5);
-        if(loottype < 3)
+        if(loottype < 2)
         {
             for (var i = 0; i < rng.Next(1, 4); i++)
             {
                 // 20% chance of a healing elixir, else its chance of a cooked beef.
                 if( rng.Next(100) <= 20)
                 {
-                    //loot.Add(new IItem(new Info("healing elixir", "a healing elixir. smells sweetly."), ItemType.Consumable, ui, map, new Point(-1, -1)));
+                    loot.Add(new items.consumables.healingelixir(ui, map));
                 } else
                 {
                     loot.Add(new items.consumables.cookedbeef(ui, map));
@@ -61,7 +61,7 @@ public class Chest : GameObject
                 }
                 else
                 {
-                    //loot.Add(new IItem(new Info("sword", "a sword. a dagger, but longer."), ItemType.Mellee, ui, map, new Point(-1, -1)));
+                    loot.Add(new items.Mellees.sword(ui, map));
                 }
             }
         }

@@ -7,7 +7,7 @@ namespace MIST.items.consumables
     {
         public ItemType Type => ItemType.Consumable;
 
-        public Info Info => new Info("bread", "a loaf of bread, that's all.");
+        public Info Info => new Info("healing elixir", "a healing elixir, smells like stawberry.");
 
         private GameObject ThisObject;
         public GameObject? Object { get => ThisObject; set => ThisObject = value; }
@@ -19,10 +19,10 @@ namespace MIST.items.consumables
 
         public void Use(UI ui, GameObject player)
         {
-            ui.SendMessage("You eat the bread.");
+            ui.SendMessage("You drink the elixir. You feel better.");
 
-            // heal the player a little bit
-            player.Fighter.HP = Math.Min(player.Fighter.maxHP, player.Fighter.HP + 10);
+            // heal the player
+            player.Fighter.HP = player.Fighter.maxHP;
 
             // destroy the object
             ui.playerinventory.Remove(this);

@@ -24,20 +24,20 @@ namespace MIST
             this.type = type;
         }
 
-        public void takeDamage(int damage, int power)
+        public void takeDamage(int damage, int power, GameObject self, Map map)
         {
             var rng = new Random();
             var dmg = Math.Max(rng.Next(damage - defense, damage * power), 0);
-
-            ui.SendMessage("did " + dmg + " physical damage.");
+            
+            if (self.IsVisible(map)) ui.SendMessage("did " + dmg + " physical damage.");
 
             if (dmg <= 0)
             {
-                ui.SendMessage("It's very uneffective...");
+                if (self.IsVisible(map)) ui.SendMessage("It's very uneffective...");
             }
             else if (dmg > damage * 1.5)
             {
-                ui.SendMessage("Critical Hit!");
+                if (self.IsVisible(map)) ui.SendMessage("Critical Hit!");
                 HP -= dmg;
             }  
             else
