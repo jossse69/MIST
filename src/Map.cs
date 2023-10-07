@@ -543,7 +543,7 @@ namespace MIST
                         
                         obj.AI.UpdateEnergy();
 
-                        while (obj.AI.Canspendenergy)
+                        while (obj.AI.Canspendenergy && !player.Fighter.IsDead)
                         {
                             obj.AI.AITurn(obj, this, _objects, player); 
                             obj.AI.UpdateEnergy();

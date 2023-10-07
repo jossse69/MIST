@@ -6,7 +6,7 @@ using SadRogue.Primitives.GridViews;
 
 namespace MIST.AI
 {
-    public class BasicMonsterAI: MonsterAI
+    public class BasicMonsterAI: IMonsterAI
     {
         public Point Target { get; set; } = new Point(-1, -1);
 
@@ -120,11 +120,11 @@ namespace MIST.AI
            // check all energy cost to see if we can spend energy
             if (Energy > movecost)
             {
-                canspendenergy = true;
+                Canspendenergy = true;
             }
             else
             {
-                canspendenergy = false;
+                Canspendenergy = false;
                 
             }
        
